@@ -1,4 +1,4 @@
 # CS348 Project
 ---
-Contributors: Michael Lee, Winston Wang, Xinyi Xiao
+Contributors: Michael Lee, Winston Wang, Xinyi Xiao, Gunkyu Park
 
