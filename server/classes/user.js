@@ -4,6 +4,7 @@ class User {
         this.last = data.last;
         this.first = data.first;
         this.middle = data.middle;
+        this.birthdate = data.birthdate;
     }
 }
 

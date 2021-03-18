@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "start": "nodemon server/server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "joi": "^17.4.0",
+    "mysql": "^2.18.1"
+  }
+}

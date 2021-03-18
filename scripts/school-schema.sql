@@ -15,11 +15,14 @@ SET FOREIGN_KEY_CHECKS=0;
 
 CREATE TABLE students (
     id int(16) NOT NULL AUTO_INCREMENT,
-    last varchar(50),
-    first varchar(50),
+    last varchar(50) NOT NULL,
+    first varchar(50) NOT NULL,
     middle varchar(1),
-    year tinyint,
+    birthdate date NOT NULL,
+    year tinyint NOT NULL,
     gpa float DEFAULT NULL,
+    email varchar(100) NOT NULL,
+    phone char(12) NOT NULL,
     PRIMARY KEY (id)
 );
 -- Set initial PK value
@@ -27,13 +30,29 @@ ALTER TABLE students AUTO_INCREMENT=10000;
 
 CREATE TABLE teachers (
     id int(16) NOT NULL AUTO_INCREMENT,
-    last varchar(50),
-    first varchar(50),
+    last varchar(50) NOT NULL,
+    first varchar(50) NOT NULL,
     middle varchar(1),
+    birthdate date NOT NULL,
     salary float,
+    email varchar(100) NOT NULL,
+    phone char(12) NOT NULL,
     PRIMARY KEY (id)
 );
 ALTER TABLE teachers AUTO_INCREMENT=10000;
+
+CREATE TABLE advisors (
+    id int(16) NOT NULL AUTO_INCREMENT,
+    last varchar(50) NOT NULL,
+    first varchar(50) NOT NULL,
+    middle varchar(1),
+    birthdate date NOT NULL,
+    salary float,
+    email varchar(100) NOT NULL,
+    phone char(12) NOT NULL,
+    PRIMARY KEY (id)
+);
+ALTER TABLE advisors AUTO_INCREMENT=10000;
 
 CREATE TABLE courses (
     id int(16) NOT NULL AUTO_INCREMENT,
@@ -42,16 +61,6 @@ CREATE TABLE courses (
     PRIMARY KEY (id)
 );
 ALTER TABLE courses AUTO_INCREMENT=10000;
-
-CREATE TABLE advisors (
-    id int(16) NOT NULL AUTO_INCREMENT,
-    last varchar(50),
-    first varchar(50),
-    middle varchar(1),
-    salary float,
-    PRIMARY KEY (id)
-);
-ALTER TABLE advisors AUTO_INCREMENT=10000;
 
 CREATE TABLE organizations (
     id int(16) NOT NULL AUTO_INCREMENT,

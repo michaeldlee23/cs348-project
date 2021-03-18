@@ -1,5 +1,5 @@
 const mysql = require('mysql');
-const info = require('../env/connection');
+const info = require('../env/cred');
 const Student = require('./classes/student');
 
 const connection = mysql.createConnection(info);
