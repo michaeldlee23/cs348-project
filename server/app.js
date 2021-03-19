@@ -5,5 +5,6 @@ const app = express();
 app.use(bodyParser.json());
 
 require('./routes/students')(app);
+require('./routes/courses')(app);
 
 module.exports = app;
