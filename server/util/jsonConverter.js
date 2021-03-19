@@ -12,8 +12,6 @@ const payloadToUpdate = (payload) => {
             res += `,${key}=${payload[key]}`;
         }
     }
-    foo = {};
-    console.log(foo);
     return res.substr(1);
 };
 

@@ -34,4 +34,3 @@ INSERT INTO organizations (name, type, budget) VALUES
     ('Eta Sigma Pi', 'Fraternity', 31415),
     ('Alcoholics Anonymous', 'Social', 0.78)
 ;
-

@@ -8,10 +8,10 @@ const ENDPOINT = '/courses';
 const ENTITY = 'courses';
 
 module.exports = (app) => {
-    app.get(ENDPOINT, (req, res, next) => {
+    app.get(ENDPOINT, (req, res) => {
         const ERR_MESSAGE = 'Failed to retrieve courses';
         const sql = `SELECT * FROM ${ENTITY}`;
-        pool.query(sql, (err, results, fields) => {
+        pool.query(sql, (err, results) => {
             if (err) {
                 return res.status(500).json({
                     message: ERR_MESSAGE,
@@ -22,7 +22,7 @@ module.exports = (app) => {
         });
     });
 
-    app.post(ENDPOINT, (req, res, next) => {
+    app.post(ENDPOINT, (req, res) => {
         const ERR_MESSAGE = 'Failed to add course';
         const SUC_MESSAGE = 'Successfully added course';
         const payload = req.body;
@@ -34,7 +34,7 @@ module.exports = (app) => {
             });
         }
         const sql = `INSERT INTO ${ENTITY}(${Object.keys(payload).toString()}) VALUES (?)`;
-        pool.query(sql, [Object.values(payload)], async (err, results, fields) => {
+        pool.query(sql, [Object.values(payload)], async (err) => {
             if (err) {
                 return res.status(500).json({
                     message: ERR_MESSAGE,
@@ -48,7 +48,7 @@ module.exports = (app) => {
         });
     });
 
-    app.put(ENDPOINT, (req, res, next) => {
+    app.put(ENDPOINT, (req, res) => {
         const ERR_MESSAGE = 'Failed to update course record';
         const SUC_MESSAGE = 'Successfully updated course record';
         const payload = req.body;
@@ -61,7 +61,7 @@ module.exports = (app) => {
         }
         const values = jsonConverter.payloadToUpdate(payload);
         const sql = `UPDATE ${ENTITY} SET ${values} WHERE id=${payload.id}`;
-        pool.query(sql, async (err, results, fields) => {
+        pool.query(sql, async (err, results) => {
             if (results.changedRows == 0) {
                 return res.status(404).json({
                     message: ERR_MESSAGE,
