@@ -1,3 +1,5 @@
+'use strict';
+
 const payloadToUpdate = (payload) => {
     let res = '';
     for (const key in payload) {
@@ -10,6 +12,8 @@ const payloadToUpdate = (payload) => {
             res += `,${key}=${payload[key]}`;
         }
     }
+    foo = {};
+    console.log(foo);
     return res.substr(1);
 };
 

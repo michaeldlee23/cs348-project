@@ -1,3 +1,5 @@
+'use strict';
+
 const pool = require('../connection');
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
