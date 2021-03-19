@@ -4,10 +4,13 @@ const pool = require('../connection');
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
 
+const ENDPOINT = '/courses';
+const ENTITY = 'courses';
+
 module.exports = (app) => {
-    app.get('/courses', (req, res, next) => {
+    app.get(ENDPOINT, (req, res, next) => {
         const ERR_MESSAGE = 'Failed to retrieve courses';
-        const sql = 'SELECT * FROM courses';
+        const sql = `SELECT * FROM ${ENTITY}`;
         pool.query(sql, (err, results, fields) => {
             if (err) {
                 return res.status(500).json({
@@ -19,7 +22,7 @@ module.exports = (app) => {
         });
     });
 
-    app.post('/courses', (req, res, next) => {
+    app.post(ENDPOINT, (req, res, next) => {
         const ERR_MESSAGE = 'Failed to add course';
         const SUC_MESSAGE = 'Successfully added course';
         const payload = req.body;
@@ -30,7 +33,7 @@ module.exports = (app) => {
                 data: err.message
             });
         }
-        const sql = `INSERT INTO courses(${Object.keys(payload).toString()}) VALUES (?)`;
+        const sql = `INSERT INTO ${ENTITY}(${Object.keys(payload).toString()}) VALUES (?)`;
         pool.query(sql, [Object.values(payload)], async (err, results, fields) => {
             if (err) {
                 return res.status(500).json({
@@ -45,7 +48,7 @@ module.exports = (app) => {
         });
     });
 
-    app.put('/courses', (req, res, next) => {
+    app.put(ENDPOINT, (req, res, next) => {
         const ERR_MESSAGE = 'Failed to update course record';
         const SUC_MESSAGE = 'Successfully updated course record';
         const payload = req.body;
@@ -57,7 +60,7 @@ module.exports = (app) => {
             });
         }
         const values = jsonConverter.payloadToUpdate(payload);
-        const sql = `UPDATE courses SET ${values} WHERE id=${payload.id}`;
+        const sql = `UPDATE ${ENTITY} SET ${values} WHERE id=${payload.id}`;
         pool.query(sql, async (err, results, fields) => {
             if (results.changedRows == 0) {
                 return res.status(404).json({
