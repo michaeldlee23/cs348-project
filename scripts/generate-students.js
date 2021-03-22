@@ -1,3 +1,14 @@
+/*
+    This script is used for generating the `generate-students.sql` script, which is then run by 
+    `reset.sql` to populate the `students` table.
+    
+    Run this script before running `reset.sql`. It will also generate `password-map.txt` which
+    provides a mapping from the randomly generated emails to their plaintext passwords, usable
+    for testing purposes.
+*/
+
+'use-strict';
+
 const fs = require('fs');
 const chance = require('chance')();
 const bcrypt = require('bcryptjs');
@@ -23,7 +34,7 @@ const generateRecord = async () => {
         first: chance.word(),
         middle: chance.character({ alpha: true, casing: 'upper' }),
         year: chance.integer({ min: 1, max: 5 }),
-        birthdate: chance.date().toISOString().replace(/\T.+/, ''),
+        birthdate: chance.date().toISOString().replace(/T.+/, ''),
         phone: phone,
         scope: 'STUDENT'
     };
