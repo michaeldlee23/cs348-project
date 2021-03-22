@@ -63,6 +63,24 @@ module.exports = (app) => {
         });
     });
 
+    app.get(ENDPOINT + '/:id', authenticateToken, isStudent, (req, res) => {
+        // TODO: Make this secure so students can't see each other's info.
+        //       Might need to make this a POST and take password as payload.
+        const ERR_MESSAGE = 'Failed to retrieve student information';
+        const sql = `SELECT id, email, last, first, middle, birthdate, phone, year, gpa 
+                     FROM ${ENTITY}
+                     WHERE id=${req.params.id}`;
+        pool.query(sql, (err, results) => {
+            if (err) {
+                return res.status(500).json({
+                    message: ERR_MESSAGE,
+                    data: err.message,
+                });
+            }
+            return res.status(200).json(results[0]);
+        })
+    });
+
     app.post(ENDPOINT + '/register', async (req, res) => {
         const ERR_MESSAGE = 'Failed to add student';
         const SUC_MESSAGE = 'Successfully added student';
