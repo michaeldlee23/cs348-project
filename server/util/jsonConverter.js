@@ -4,7 +4,7 @@ const payloadToUpdate = (payload) => {
     let res = '';
     for (const key in payload) {
         if (key == 'id') {
-            continue; // Should never update id
+            continue; // Never update the primary key
         }
         if (typeof(payload[key]) == 'string') {
             res += `,${key}='${payload[key]}'`;

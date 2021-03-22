@@ -1,10 +1,10 @@
 'use strict';
 
 const mysql = require('mysql');
-const info = require('../env/cred');
+const config = require('../env/config');
 
 const getPool = () => {
-    const pool = mysql.createPool(info);
+    const pool = mysql.createPool(config.connectionCreds);
     return pool;
 }
 
