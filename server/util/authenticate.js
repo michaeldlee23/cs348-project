@@ -38,8 +38,18 @@ const isStudent = async (req, res, next) => {
     }
 }
 
+const isTeacher = async (req, res, next) => {
+    if (req.user.scope.includes('TEACHER')) {
+        next();
+    } else {
+        return res.status(401).send('Unauthorized');
+    }
+}
+
+
 module.exports = {
     generateAccessToken,
     authenticateToken,
     isStudent,
+    isTeacher,
 };

@@ -1,12 +1,12 @@
 INSERT INTO students (email, password, last, first, middle, year, birthdate, phone, scope) VALUES
-	('bu@lavodi.sd','$2a$10$IjdsTljfeVSMl2XnxphynOASjd1M.ebZPPXd7QXMRln82rt5e8jWi','rezes','mova','L',1,'2094-03-21','605-432-3506','STUDENT'),
-	('de@umewa.ss','$2a$10$zp.YmNxZR4Rp2bmT2bnEWeAYVHIcc6vUMuScWgMM1abToqCLK61p6','fozre','havomeveb','A',2,'2074-02-04','309-655-5721','STUDENT'),
-	('rinmowzu@fenahic.vg','$2a$10$EqweEr/jAvmsaBUpyzsfe.eHFw9ErsLQ8YW6oke9eGrJna/rBzQIu','vaz','huwakmug','T',4,'2120-04-09','320-653-8023','STUDENT'),
-	('zi@risig.in','$2a$10$6TlryQmd/IlPfKBnrCDt1ujARn8i59yj5MplICEMURPllcnuBmC1W','ot','kezubadid','E',2,'2027-02-05','538-412-8297','STUDENT'),
-	('logpe@uveluufi.gm','$2a$10$yCb8YlPD.2e1aGZXodZo4ejoUDqkPTiKoCGIPWh7Z4uBnmg/5N9z6','kinicnur','sozam','Y',5,'2047-01-27','559-227-7805','STUDENT'),
-	('wuwod@ma.tt','$2a$10$5ulqZukVMuyswnrjp/0D1OeP8yDyfPV7Y7TyeV5tdoy1IbJzGCHk6','kew','hik','J',5,'2092-06-29','327-475-1957','STUDENT'),
-	('potke@ciduger.ws','$2a$10$FT2PotqywW6Ddi7MsmC2tO5erZ0EnNRz6Gl4hnGxR.e4mdEuvrBRW','ocu','ti','L',3,'2113-09-21','566-936-9484','STUDENT'),
-	('umezijo@pigzeh.lt','$2a$10$Ykxn40G.07/LUIqhRdKI0OHVpnpWPY6AQFw6CBwvjMbn0Zfe0dYHS','noflivgil','coksur','V',5,'2093-09-10','406-687-7856','STUDENT'),
-	('kem@mutnuvduh.ie','$2a$10$NTWp2iPPOt/NFWtr0iILAOcRGxqK33sHCIs.s.6frN61DNnB5AAyC','rolarci','gi','B',3,'2062-03-07','540-998-6054','STUDENT'),
-	('dupsaf@mic.pt','$2a$10$ZgqRQ1OT4oTu3bNAEYNctOkvDm8XTFJ0hvWIkLYxDEDK0ZSs9B5xG','ucelu','etahit','B',4,'2026-08-24','552-664-4341','STUDENT')
+	('gietijo@elodawib.cz','$2a$10$hF9axOGaUDZq/lYNRzJSyeEJTfmiN8z51MJZjq90WjsvFEGWmc7PG','idsedfo','daze','R',2,'2108-05-13','437-808-3502','STUDENT'),
+	('bumijimet@nih.gov','$2a$10$GWP2Wzf/oqDB/GFKJkrrhukiw2MlgAgYi7jqfi.zKQytdjdwSs6pG','kasiba','ure','O',2,'2084-11-25','236-666-4257','STUDENT'),
+	('ju@dera.vn','$2a$10$FkDBpOIacbuokC6x5ONCCui93PjGM0aABD7Cs2xm9UDq1P.KtALT6','ecmifav','tuvegomo','J',4,'2103-09-15','409-322-8979','STUDENT'),
+	('otaztin@susooru.bj','$2a$10$2VT6vaZXiimBS6IA53TzKO0jJVF5KTBfRMsxNYlSNxaqU46ogouk6','tivwagke','zokko','I',3,'2038-12-06','223-289-5558','STUDENT'),
+	('eh@valurez.uy','$2a$10$JaERVAAQ3.89dpfFaJwAXuFidlh.NkwLeJKxJ7W15V19Lbu56XxLS','ewe','ke','P',3,'2048-04-28','237-821-3482','STUDENT'),
+	('suj@cauteze.bd','$2a$10$aEWa7TwdSdDYht6UuMsiVODA8CYImD3Q4kNRXabt.PV6atcmpuNNm','reftam','lazku','R',3,'2121-09-17','764-915-3107','STUDENT'),
+	('ole@lurah.sl','$2a$10$P.34hAnKPGVFMg3AHWFX0O7X3tIlSaan3Qjs7aB4NBbcspwkgAsmm','witom','piju','W',5,'2035-03-31','886-539-6508','STUDENT'),
+	('sukbec@vaflos.bv','$2a$10$81mmUZ55fvYAk/rKDq6AeeX7JP614F3JG.qpwzmNo6uL1HQCVLTia','vo','tiva','V',1,'2088-02-19','742-503-1300','STUDENT'),
+	('cud@lujenvom.to','$2a$10$N8nLj.4h6POeJJrKfVe2n.u3K26hTSmVkXAHwCUsFxqm6MbW2HRrK','baohi','dieb','Y',3,'2036-12-21','378-885-4463','STUDENT'),
+	('odubope@fec.eh','$2a$10$a.1chx73BQlyanxxJ/yYPuLMc6jHOC.XBIj8TVH1vCJe8H.7uTtuW','cucig','ihuicuva','E',3,'2081-06-11','809-600-7082','STUDENT')
 ;
