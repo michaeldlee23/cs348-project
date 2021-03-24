@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const pool = require('../connection');
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
-const { generateAccessToken, authenticateToken, isStudent } = require('../util/authenticate');
+const { generateAccessToken, authenticateToken, isAdvisor } = require('../util/authenticate');
 
 const ENDPOINT = '/advisors';
 const ENTITY = 'advisors';
@@ -64,7 +64,7 @@ module.exports = (app) => {
     });
 
     app.get(ENDPOINT + '/:id', authenticateToken, isAdvisor, (req, res) => {
-        // TODO: Make this secure so students can't see each other's info.
+        // TODO: Make this secure so advisors can't see each other's info.
         //       Might need to make this a POST and take password as payload.
         const ERR_MESSAGE = 'Failed to retrieve advisor information';
         const sql = `SELECT id, email, last, first, middle, birthdate, phone, year, gpa 
