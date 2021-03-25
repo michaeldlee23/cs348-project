@@ -6,7 +6,11 @@ const postCourseSchema = require('./postCourse');
 const putCourseSchema = require('./putCourse');
 const postStudentCourseSchema = require('./postStudentCourse');
 const putStudentCourseSchema = require('./putStudentCourse');
+const postTeacherCourseSchema = require('./postTeacherCourse');
+const postStudentOrganizationSchema = require('./postStudentOrganization');
+const putStudentOrganizationSchema = require('./putStudentOrganization');
 const postAuthSchema = require('./postAuth');
+
 
 module.exports = {
     postStudentSchema,
@@ -15,5 +19,8 @@ module.exports = {
     putCourseSchema,
     postStudentCourseSchema,
     putStudentCourseSchema,
+    postTeacherCourseSchema,
+    postStudentOrganizationSchema,
+    putStudentOrganizationSchema,
     postAuthSchema,
 };
