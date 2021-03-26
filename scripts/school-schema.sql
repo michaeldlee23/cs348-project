@@ -40,6 +40,7 @@ CREATE TABLE teachers (
     birthdate date NOT NULL,
     salary float,
     phone char(12) NOT NULL,
+    scope varchar(100),
     PRIMARY KEY (id)
 );
 ALTER TABLE teachers AUTO_INCREMENT=10000;

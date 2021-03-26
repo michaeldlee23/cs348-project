@@ -4,15 +4,15 @@ const bcrypt = require('bcryptjs');
 const pool = require('../connection');
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
-const { generateAccessToken, authenticateToken, isStudent } = require('../util/authenticate');
+const { generateAccessToken, authenticateToken, isTeacher } = require('../util/authenticate');
 
-const ENDPOINT = '/students';
-const ENTITY = 'students';
+const ENDPOINT = '/teachers';
+const ENTITY = 'teachers';
 
 module.exports = (app) => {
     app.post(ENDPOINT + '/login', async (req, res) => {
-        const ERR_MESSAGE = 'Failed to authenticate student';
-        const SUC_MESSAGE = 'Successfully authenticated student';
+        const ERR_MESSAGE = 'Failed to authenticate teacher';
+        const SUC_MESSAGE = 'Successfully authenticated teacher';
         const payload = req.body;
         const err = validation.request.postAuthSchema.validate(payload).error;
         if (err) {
@@ -49,9 +49,9 @@ module.exports = (app) => {
         });
     });
 
-    app.get(ENDPOINT, authenticateToken, isStudent, (req, res) => {
-        const ERR_MESSAGE = 'Failed to retrieve students';
-        const sql = `SELECT id, email, last, first, middle, year FROM ${ENTITY}`;
+    app.get(ENDPOINT, authenticateToken, isTeacher, (req, res) => {
+        const ERR_MESSAGE = 'Failed to retrieve teachers';
+        const sql = `SELECT id, email, last, first, middle FROM ${ENTITY}`;
         pool.query(sql, (err, results) => {
             if (err) {
                 return res.status(500).json({
@@ -63,11 +63,11 @@ module.exports = (app) => {
         });
     });
 
-    app.get(ENDPOINT + '/:id', authenticateToken, isStudent, (req, res) => {
-        // TODO: Make this secure so students can't see each other's info.
+    app.get(ENDPOINT + '/:id', authenticateToken, isTeacher, (req, res) => {
+        // TODO: Make this secure so teachers can't see each other's info.
         //       Might need to make this a POST and take password as payload.
-        const ERR_MESSAGE = 'Failed to retrieve student information';
-        const sql = `SELECT id, email, last, first, middle, birthdate, phone, year, gpa 
+        const ERR_MESSAGE = 'Failed to retrieve teacher information';
+        const sql = `SELECT id, email, last, first, middle, birthdate, phone, salary
                      FROM ${ENTITY}
                      WHERE id=${req.params.id}`;
         pool.query(sql, (err, results) => {
@@ -82,10 +82,10 @@ module.exports = (app) => {
     });
 
     app.post(ENDPOINT + '/register', async (req, res) => {
-        const ERR_MESSAGE = 'Failed to add student';
-        const SUC_MESSAGE = 'Successfully added student';
+        const ERR_MESSAGE = 'Failed to add teacher';
+        const SUC_MESSAGE = 'Successfully added teacher';
         const payload = req.body;
-        const err = validation.request.postStudentSchema.validate(payload).error;
+        const err = validation.request.postTeacherSchema.validate(payload).error;
         if (err) {
             return res.status(400).json({
                 message: ERR_MESSAGE,
@@ -96,10 +96,10 @@ module.exports = (app) => {
         const salt = await bcrypt.genSalt(10);
         payload.password = await bcrypt.hash(payload.password, salt);
         // Add auth scope
-        payload.scope = 'STUDENT';
+        payload.scope = 'TEACHER';
 
         const sql = `INSERT INTO ${ENTITY}(${Object.keys(payload).toString()}) VALUES (?)`;
-        console.log(sql);
+  //      console.log(sql);
         pool.query(sql, [Object.values(payload)], async (err) => {
             if (err) {
                 return res.status(500).json({
@@ -118,9 +118,9 @@ module.exports = (app) => {
         });
     });
 
-    app.put(ENDPOINT, authenticateToken, isStudent, (req, res) => {
-        const ERR_MESSAGE = 'Failed to update student record';
-        const SUC_MESSAGE = 'Successfully updated student record';
+    app.put(ENDPOINT, authenticateToken, isTeacher, (req, res) => {
+        const ERR_MESSAGE = 'Failed to update teacher record';
+        const SUC_MESSAGE = 'Successfully updated teacher record';
         const payload = req.body;
         const err = validation.request.putStudentSchema.validate(payload).error;
         if (err) {
