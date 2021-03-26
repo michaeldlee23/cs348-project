@@ -17,13 +17,21 @@ const postTeacherCourseSchema = require('./postTeacherCourse');
 module.exports = {
     postStudentSchema,
     putStudentSchema,
+
     postCourseSchema,
     putCourseSchema,
+
     postStudentCourseSchema,
     putStudentCourseSchema,
-    postAuthSchema,
+
+    postStudentOrganizationSchema,
+    putStudentOrganizationSchema,
 
     postTeacherSchema,
     putTeacherSchema,
+
+    postTeacherCourseSchema,
+
+    postAuthSchema,
 };
 
