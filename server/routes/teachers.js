@@ -99,7 +99,6 @@ module.exports = (app) => {
         payload.scope = 'TEACHER';
 
         const sql = `INSERT INTO ${ENTITY}(${Object.keys(payload).toString()}) VALUES (?)`;
-  //      console.log(sql);
         pool.query(sql, [Object.values(payload)], async (err) => {
             if (err) {
                 return res.status(500).json({

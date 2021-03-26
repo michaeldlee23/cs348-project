@@ -65,7 +65,6 @@ module.exports = (app) => {
         delete payload.courseID;
         const values = jsonConverter.payloadToUpdate(payload);
         const sql = `UPDATE ${ENTITY} SET ${values} WHERE studentID=${studentID} AND courseID=${courseID}`;
-        console.log(sql);
         pool.query(sql, async (err, results) => {
             if (results.affectedRows == 0) {
                 return res.status(404).json({

@@ -1,86 +1,15 @@
 'use strict';
 
 const bcrypt = require('bcryptjs');
-const pool = require('../connection');
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
+const { findStudentByEmail, executeQuery } = require('../util/db');
 const { generateAccessToken, authenticateToken, isStudent } = require('../util/authenticate');
 
 const ENDPOINT = '/students';
 const ENTITY = 'students';
 
 module.exports = (app) => {
-    app.post(ENDPOINT + '/login', async (req, res) => {
-        const ERR_MESSAGE = 'Failed to authenticate student';
-        const SUC_MESSAGE = 'Successfully authenticated student';
-        const payload = req.body;
-        const err = validation.request.postAuthSchema.validate(payload).error;
-        if (err) {
-            return res.status(400).json({
-                message: ERR_MESSAGE,
-                data: err.message
-            });
-        }
-        const sql = `SELECT * FROM ${ENTITY} WHERE email='${payload.email}'`;
-        pool.query(sql, async (err, results) => {
-            if (err) {
-                return res.status(500).json({
-                    message: ERR_MESSAGE,
-                    data: err.message
-                });
-            }
-            if (results.length == 0) {
-                return res.status(401).send('No account associated with email');
-            }
-            const user = results[0];
-
-            const validPass = await bcrypt.compare(payload.password, user.password);
-            if (!validPass) {
-                return res.status(401).send('Incorrect password');
-            }
-            const token = generateAccessToken({
-                email: user.email,
-                scope: user.scope,
-            });
-            return res.status(200).json({
-                message: SUC_MESSAGE,
-                jwt: token,
-            });
-        });
-    });
-
-    app.get(ENDPOINT, authenticateToken, isStudent, (req, res) => {
-        const ERR_MESSAGE = 'Failed to retrieve students';
-        const sql = `SELECT id, email, last, first, middle, year FROM ${ENTITY}`;
-        pool.query(sql, (err, results) => {
-            if (err) {
-                return res.status(500).json({
-                    message: ERR_MESSAGE,
-                    data: err.message
-                });
-            }
-            return res.status(200).json(results);
-        });
-    });
-
-    app.get(ENDPOINT + '/:id', authenticateToken, isStudent, (req, res) => {
-        // TODO: Make this secure so students can't see each other's info.
-        //       Might need to make this a POST and take password as payload.
-        const ERR_MESSAGE = 'Failed to retrieve student information';
-        const sql = `SELECT id, email, last, first, middle, birthdate, phone, year, gpa 
-                     FROM ${ENTITY}
-                     WHERE id=${req.params.id}`;
-        pool.query(sql, (err, results) => {
-            if (err) {
-                return res.status(500).json({
-                    message: ERR_MESSAGE,
-                    data: err.message,
-                });
-            }
-            return res.status(200).json(results[0]);
-        })
-    });
-
     app.post(ENDPOINT + '/register', async (req, res) => {
         const ERR_MESSAGE = 'Failed to add student';
         const SUC_MESSAGE = 'Successfully added student';
@@ -88,8 +17,8 @@ module.exports = (app) => {
         const err = validation.request.students.postStudentSchema.validate(payload).error;
         if (err) {
             return res.status(400).json({
-                message: ERR_MESSAGE,
-                data: err.message
+                error: ERR_MESSAGE,
+                message: err.message
             });
         }
 
@@ -98,23 +27,121 @@ module.exports = (app) => {
         // Add auth scope
         payload.scope = 'STUDENT';
 
-        const sql = `INSERT INTO ${ENTITY}(${Object.keys(payload).toString()}) VALUES (?)`;
-        console.log(sql);
-        pool.query(sql, [Object.values(payload)], async (err) => {
-            if (err) {
-                return res.status(500).json({
-                    message: ERR_MESSAGE,
-                    data: err.message
-                });
+        const insertSQL = `INSERT INTO ${ENTITY}(${Object.keys(payload).toString()}) VALUES (?)`;
+
+        findStudentByEmail(payload.email, (err, results) => {
+            if (err) return res.status(500).json(err);
+            else {
+                if (results) {
+                    return res.status(400).json({
+                        error: ERR_MESSAGE,
+                        message: 'Email already associated with user',
+                    });
+                }
+                executeQuery(insertSQL, [Object.values(payload)], (err) => {
+                    if (err) return res.status(500).json(err);
+                    else {
+                        const token = generateAccessToken({
+                            email: payload.email,
+                            scope: payload.scope,
+                        });
+                        return res.status(200).json({
+                            message: SUC_MESSAGE,
+                            jwt: token
+                        });
+                    }
+                })
             }
+        });
+    });
+
+    app.post(ENDPOINT + '/login', async (req, res) => {
+        const ERR_MESSAGE = 'Failed to authenticate student';
+        const SUC_MESSAGE = 'Successfully authenticated student';
+        const payload = req.body;
+        const err = validation.request.postAuthSchema.validate(payload).error;
+        if (err) {
+            return res.status(400).json({
+                error: ERR_MESSAGE,
+                message: err.message
+            });
+        }
+        const sql = `SELECT * FROM ${ENTITY} WHERE email=?`;
+        executeQuery(sql, [payload.email], async (err, results) => {
+            if (err) return res.status(500).json(err);
+            if (results.length == 0) 
+                return res.status(401).json({
+                    error: ERR_MESSAGE, 
+                    message: 'Incorrect username or password',
+                });
+            const user = results[0];
+            const validPass = await bcrypt.compare(payload.password, user.password);
+            if (!validPass)
+                return res.status(401).json({
+                    error: ERR_MESSAGE, 
+                    message: 'Incorrect username or password',
+                });
             const token = generateAccessToken({
-                email: payload.email,
-                scope: payload.scope,
+                email: user.email,
+                scope: user.scope,
             });
             return res.status(200).json({
                 message: SUC_MESSAGE,
-                jwt: token
+                jwt: token,
             });
+        })
+    });
+
+    app.get(ENDPOINT, authenticateToken, isStudent, (req, res) => {
+        const sql = `SELECT id, email, last, first, middle, year FROM ${ENTITY}`;
+        executeQuery(sql, (err, results) => {
+            if (err) return res.status(500).json(err);
+            return res.status(200).json(results);
+        })
+    });
+
+    app.post(ENDPOINT + '/:id', authenticateToken, isStudent, async (req, res) => {
+        // TODO: Make this secure so students can't see each other's info.
+        //       Might need to make this a POST and take password as payload.
+        const ERR_MESSAGE = 'Failed to retrieve student information';
+        const payload = req.body;
+        const err = validation.request.students.getStudentSchema.validate(payload).error;
+        if (err)
+            return res.status(400).json({
+                error: ERR_MESSAGE,
+                message: err.message,
+            });
+        const infoSQL = `SELECT * FROM ${ENTITY} WHERE id=?`;
+        const gradesSQL = `SELECT name, grade
+                           FROM students S
+                           INNER JOIN studentCourseRel SC ON S.id = SC.studentID
+                           INNER JOIN courses C ON SC.courseID = C.id
+                           WHERE S.id = ?`;
+
+        executeQuery(infoSQL, [req.params.id], async (err, info) => {
+            if (err) return res.status(500).json(err);
+            if (info.length == 0) {
+                return res.status(403).json({
+                    error: ERR_MESSAGE,
+                    message: 'Access denied',
+                });
+            }
+            const validPass = await bcrypt.compare(payload.password, info[0].password)
+            if (!validPass)
+                return res.status(403).json({
+                    error: ERR_MESSAGE,
+                    message: 'Access denied',
+                });
+            delete info[0].password;
+            executeQuery(gradesSQL, [req.params.id], (err, grades) => {
+                if (err) {
+                    return res.status(500).json(err);
+                }
+                return res.status(200).json({
+                    info,
+                    grades,
+                });
+            })
         });
     });
 
@@ -125,29 +152,24 @@ module.exports = (app) => {
         const err = validation.request.students.putStudentSchema.validate(payload).error;
         if (err) {
             return res.status(400).json({
-                message: ERR_MESSAGE,
-                data: err.message
+                error: ERR_MESSAGE,
+                message: err.message
             });
         }
         const values = jsonConverter.payloadToUpdate(payload);
-        const sql = `UPDATE ${ENTITY} SET ${values} WHERE id='${payload.id}'`;
-        pool.query(sql, (err, results) => {
+        const sql = `UPDATE ${ENTITY} SET ${values} WHERE id=?`;
+        executeQuery(sql, [payload.id], (err, results) => {
             if (results.affectedRows == 0) {
                 return res.status(404).json({
-                    message: ERR_MESSAGE,
-                    data: 'No account associated with id'
+                    error: ERR_MESSAGE,
+                    message: 'No account associated with id'
                 });
             }
-            if (err) {
-                return res.status(500).json({
-                    message: ERR_MESSAGE,
-                    data: err.message
-                });
-            }
+            if (err) return res.status(500).json(err);
             return res.status(200).json({
                 message: SUC_MESSAGE,
                 data: payload
             });
-        });
+        })
     });
 }
