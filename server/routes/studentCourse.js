@@ -33,6 +33,7 @@ module.exports = (app) => {
                 data: err.message
             });
         }
+        // TODO: This doesn't check if the ids actually exist
         const sql = `INSERT INTO ${ENTITY}(${Object.keys(payload).toString()}) VALUES (?)`;
         pool.query(sql, [Object.values(payload)], async (err) => {
             if (err) {

@@ -10,6 +10,6 @@ module.exports = joi.object({
     middle: joi.string().max(1).optional(),
     year: joi.number().integer().min(1).max(5).optional(),
     birthdate: joi.date().optional(),
-    salary: joi.number().required(),
+    salary: joi.number().optional(),
     phone: joi.string().regex(/^[2-9]\d{2}-\d{3}-\d{4}$/).optional()
 });

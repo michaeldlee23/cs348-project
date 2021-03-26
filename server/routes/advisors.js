@@ -51,7 +51,7 @@ module.exports = (app) => {
 
     app.get(ENDPOINT, authenticateToken, isAdvisor, (req, res) => {
         const ERR_MESSAGE = 'Failed to retrieve advisor';
-        const sql = `SELECT id, email, last, first, middle, year FROM ${ENTITY}`;
+        const sql = `SELECT id, email, last, first, middle, salary FROM ${ENTITY}`;
         pool.query(sql, (err, results) => {
             if (err) {
                 return res.status(500).json({
@@ -67,7 +67,7 @@ module.exports = (app) => {
         // TODO: Make this secure so advisors can't see each other's info.
         //       Might need to make this a POST and take password as payload.
         const ERR_MESSAGE = 'Failed to retrieve advisor information';
-        const sql = `SELECT id, email, last, first, middle, birthdate, phone, year, gpa 
+        const sql = `SELECT id, email, last, first, middle, birthdate, phone, salary 
                      FROM ${ENTITY}
                      WHERE id=${req.params.id}`;
         pool.query(sql, (err, results) => {
@@ -99,7 +99,6 @@ module.exports = (app) => {
         payload.scope = 'ADVISOR';
 
         const sql = `INSERT INTO ${ENTITY}(${Object.keys(payload).toString()}) VALUES (?)`;
-        console.log(sql);
         pool.query(sql, [Object.values(payload)], async (err) => {
             if (err) {
                 return res.status(500).json({
