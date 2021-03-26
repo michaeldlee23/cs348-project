@@ -8,5 +8,7 @@ require('./routes/students')(app);
 require('./routes/courses')(app);
 require('./routes/studentCourse')(app);
 
+require('./routes/teacherCourse')(app);
+require('./routes/studentOrganization')(app);
 require('./routes/teachers')(app);
 module.exports = app;
