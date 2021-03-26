@@ -85,7 +85,7 @@ module.exports = (app) => {
         const ERR_MESSAGE = 'Failed to add advisor';
         const SUC_MESSAGE = 'Successfully added advisor';
         const payload = req.body;
-        const err = validation.request.postAdvisorSchema.validate(payload).error;
+        const err = validation.request.advisors.postAdvisorSchema.validate(payload).error;
         if (err) {
             return res.status(400).json({
                 message: ERR_MESSAGE,
@@ -121,7 +121,7 @@ module.exports = (app) => {
         const ERR_MESSAGE = 'Failed to update advisor record';
         const SUC_MESSAGE = 'Successfully updated advisor record';
         const payload = req.body;
-        const err = validation.request.putAdvisorSchema.validate(payload).error;
+        const err = validation.request.advisors.putAdvisorSchema.validate(payload).error;
         if (err) {
             return res.status(400).json({
                 message: ERR_MESSAGE,
@@ -131,7 +131,7 @@ module.exports = (app) => {
         const values = jsonConverter.payloadToUpdate(payload);
         const sql = `UPDATE ${ENTITY} SET ${values} WHERE id='${payload.id}'`;
         pool.query(sql, (err, results) => {
-            if (results.changedRows == 0) {
+            if (results.affectedRows == 0) {
                 return res.status(404).json({
                     message: ERR_MESSAGE,
                     data: 'No account associated with id'

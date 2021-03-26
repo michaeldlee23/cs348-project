@@ -23,10 +23,11 @@ module.exports = (app) => {
     });
 
     app.post(ENDPOINT, (req, res) => {
+        // TODO: this allows duplicate organizations
         const ERR_MESSAGE = 'Failed to add student to organization';
         const SUC_MESSAGE = 'Successfully added student to organization';
         const payload = req.body;
-        const err = validation.request.postStudentOrganizationSchema.validate(payload).error;
+        const err = validation.request.students.postStudentOrganizationSchema.validate(payload).error;
         if (err) {
             return res.status(400).json({
                 message: ERR_MESSAGE,
@@ -52,21 +53,21 @@ module.exports = (app) => {
         const ERR_MESSAGE = 'Failed to update position for student';
         const SUC_MESSAGE = 'Successfully updated position for student';
         const payload = req.body;
-        const err = validation.request.putStudentOrganizationSchema.validate(payload).error;
+        const err = validation.request.student.studentOrganizationSchema.validate(payload).error;
         if (err) {
             return res.status(400).json({
                 message: ERR_MESSAGE,
                 data: err.message
             });
         }
-        const {studentID, courseID} = payload;
+        const {studentID, organizationID} = payload;
         delete payload.studentID;
         delete payload.organizationID;
         const values = jsonConverter.payloadToUpdate(payload);
         const sql = `UPDATE ${ENTITY} SET ${values} WHERE studentID=${studentID} AND organizationID=${organizationID}`;
         console.log(sql);
         pool.query(sql, async (err, results) => {
-            if (results.changedRows == 0) {
+            if (results.affectedRows == 0) {
                 return res.status(404).json({
                     message: ERR_MESSAGE,
                     data: `No student with id ${studentID} in org with id ${organizationID}`

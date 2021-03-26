@@ -26,7 +26,7 @@ module.exports = (app) => {
         const ERR_MESSAGE = 'Failed to enrolled student in course';
         const SUC_MESSAGE = 'Successfully enrolled student in course';
         const payload = req.body;
-        const err = validation.request.postStudentCourseSchema.validate(payload).error;
+        const err = validation.request.students.postStudentCourseSchema.validate(payload).error;
         if (err) {
             return res.status(400).json({
                 message: ERR_MESSAGE,
@@ -53,7 +53,7 @@ module.exports = (app) => {
         const ERR_MESSAGE = 'Failed to update course grade for student';
         const SUC_MESSAGE = 'Successfully updated course grade for student';
         const payload = req.body;
-        const err = validation.request.putStudentCourseSchema.validate(payload).error;
+        const err = validation.request.students.putStudentCourseSchema.validate(payload).error;
         if (err) {
             return res.status(400).json({
                 message: ERR_MESSAGE,
@@ -67,7 +67,7 @@ module.exports = (app) => {
         const sql = `UPDATE ${ENTITY} SET ${values} WHERE studentID=${studentID} AND courseID=${courseID}`;
         console.log(sql);
         pool.query(sql, async (err, results) => {
-            if (results.changedRows == 0) {
+            if (results.affectedRows == 0) {
                 return res.status(404).json({
                     message: ERR_MESSAGE,
                     data: `No student with id ${studentID} in course with id ${courseID}`

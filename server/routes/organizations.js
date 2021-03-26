@@ -26,7 +26,7 @@ module.exports = (app) => {
         const ERR_MESSAGE = 'Failed to add organizations';
         const SUC_MESSAGE = 'Successfully added organizations';
         const payload = req.body;
-        const err = validation.request.postOrganizationSchema.validate(payload).error;
+        const err = validation.request.organizations.postOrganizationSchema.validate(payload).error;
         if (err) {
             return res.status(400).json({
                 message: ERR_MESSAGE,
@@ -52,7 +52,7 @@ module.exports = (app) => {
         const ERR_MESSAGE = 'Failed to update organization record';
         const SUC_MESSAGE = 'Successfully updated organization record';
         const payload = req.body;
-        const err = validation.request.putOrganizationSchema.validate(payload).error;
+        const err = validation.request.organizations.putOrganizationSchema.validate(payload).error;
         if (err) {
             return res.status(400).json({
                 message: ERR_MESSAGE,
@@ -62,10 +62,10 @@ module.exports = (app) => {
         const values = jsonConverter.payloadToUpdate(payload);
         const sql = `UPDATE ${ENTITY} SET ${values} WHERE id=${payload.id}`;
         pool.query(sql, async (err, results) => {
-            if (results.changedRows == 0) {
+            if (results.affectedRows == 0) {
                 return res.status(404).json({
                     message: ERR_MESSAGE,
-                    data: `No course with id ${payload.id}`
+                    data: `No organization with id ${payload.id}`
                 });
             }
             if (err) {

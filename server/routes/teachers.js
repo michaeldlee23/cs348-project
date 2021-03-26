@@ -85,7 +85,7 @@ module.exports = (app) => {
         const ERR_MESSAGE = 'Failed to add teacher';
         const SUC_MESSAGE = 'Successfully added teacher';
         const payload = req.body;
-        const err = validation.request.postTeacherSchema.validate(payload).error;
+        const err = validation.request.teachers.postTeacherSchema.validate(payload).error;
         if (err) {
             return res.status(400).json({
                 message: ERR_MESSAGE,
@@ -122,7 +122,7 @@ module.exports = (app) => {
         const ERR_MESSAGE = 'Failed to update teacher record';
         const SUC_MESSAGE = 'Successfully updated teacher record';
         const payload = req.body;
-        const err = validation.request.putTeacherSchema.validate(payload).error;
+        const err = validation.request.teachers.putTeacherSchema.validate(payload).error;
         if (err) {
             return res.status(400).json({
                 message: ERR_MESSAGE,
@@ -132,7 +132,7 @@ module.exports = (app) => {
         const values = jsonConverter.payloadToUpdate(payload);
         const sql = `UPDATE ${ENTITY} SET ${values} WHERE id='${payload.id}'`;
         pool.query(sql, (err, results) => {
-            if (results.changedRows == 0) {
+            if (results.affectedRows == 0) {
                 return res.status(404).json({
                     message: ERR_MESSAGE,
                     data: 'No account associated with id'

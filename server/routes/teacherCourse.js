@@ -25,7 +25,7 @@ module.exports = (app) => {
         const ERR_MESSAGE = 'Failed to assign teacher to a course';
         const SUC_MESSAGE = 'Successfully assigned teacher to course';
         const payload = req.body;
-        const err = validation.request.postTeacherCourseSchema.validate(payload).error;
+        const err = validation.request.teachers.postTeacherCourseSchema.validate(payload).error;
         if (err) {
             return res.status(400).json({
                 message: ERR_MESSAGE,
