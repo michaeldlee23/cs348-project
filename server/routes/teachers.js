@@ -122,7 +122,7 @@ module.exports = (app) => {
         const ERR_MESSAGE = 'Failed to update teacher record';
         const SUC_MESSAGE = 'Successfully updated teacher record';
         const payload = req.body;
-        const err = validation.request.putStudentSchema.validate(payload).error;
+        const err = validation.request.putTeacherSchema.validate(payload).error;
         if (err) {
             return res.status(400).json({
                 message: ERR_MESSAGE,
