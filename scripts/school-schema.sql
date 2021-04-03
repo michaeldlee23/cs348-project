@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS admin;
 DROP TABLE IF EXISTS students;
 DROP TABLE IF EXISTS teachers;
 DROP TABLE IF EXISTS courses;
@@ -12,6 +13,20 @@ DROP TABLE IF EXISTS teacherDepartmentRel;
 DROP TABLE IF EXISTS teacherOrganizationRel;
 
 SET FOREIGN_KEY_CHECKS=0;
+
+CREATE TABLE admin (
+    id int(16) NOT NULL AUTO_INCREMENT,
+    email varchar(100) NOT NULL,
+    password varchar(255) NOT NULL,
+    role varchar(100) NOT NULL,
+    last varchar(50) NOT NULL,
+    first varchar(50) NOT NULL,
+    middle varchar(1),
+    salary float,
+    scope varchar(100),
+    PRIMARY KEY (id)
+);
+ALTER TABLE admin AUTO_INCREMENT=10000;
 
 CREATE TABLE students (
     id int(16) NOT NULL AUTO_INCREMENT,

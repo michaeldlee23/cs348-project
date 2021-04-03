@@ -1,5 +1,6 @@
 'use strict';
 
+const admin = require('./admin');
 const students = require('./students');
 const teachers = require('./teachers');
 const advisors = require('./advisors');
@@ -8,6 +9,7 @@ const organizations = require('./organizations');
 const postAuthSchema = require('./postAuth');
 
 module.exports = {
+    admin,
     students,
     teachers,
     advisors,
