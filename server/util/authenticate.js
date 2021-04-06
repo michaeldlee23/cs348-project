@@ -31,7 +31,7 @@ const authenticateToken = async (req, res, next) => {
 }
 
 const isStudent = async (req, res, next) => {
-    if (req.user.scope.includes('STUDENT')) {
+    if (req.user.scope.includes('STUDENT') || req.user.scope.includes('ADMIN')) {
         next();
     } else {
         return res.status(401).send('Unauthorized');
@@ -39,7 +39,7 @@ const isStudent = async (req, res, next) => {
 }
 
 const isTeacher = async (req, res, next) => {
-    if (req.user.scope.includes('TEACHER')) {
+    if (req.user.scope.includes('TEACHER') || req.user.scope.includes('ADMIN')) {
         next();
     } else {
         return res.status(401).send('Unauthorized');
@@ -47,7 +47,7 @@ const isTeacher = async (req, res, next) => {
 }
 
 const isAdvisor = async (req, res, next) => {
-    if (req.user.scope.includes('ADVISOR')) {
+    if (req.user.scope.includes('ADVISOR') || req.user.scope.includes('ADMIN')) {
         next();
     } else {
         return res.status(401).send('Unauthorized');
