@@ -3,6 +3,8 @@
 const pool = require('../connection');
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
+const { executeQuery } = require('../util/db');
+const { authenticateToken, isAdmin } = require('../util/authenticate');
 
 const ENDPOINT = '/courses';
 const ENTITY = 'courses';
@@ -80,4 +82,21 @@ module.exports = (app) => {
             });
         });
     });
+
+    app.delete(ENDPOINT + '/:id', authenticateToken, isAdmin, async (req, res) => {
+        const SUC_MESSAGE = 'Successfully deleted student record';
+        const ERR_MESSAGE = 'Failed to delete student record';
+        const studentID = req.params.id;
+        const sql = `DELETE FROM ${ENTITY} WHERE id=?`;
+        executeQuery(sql, [studentID], async (err, info) => {
+            if (err) return err.status(500).json(err);
+            if (info.length == 0) {
+                return res.status(404).json({
+                    error: ERR_MESSAGE,
+                    message: 'No such student found',
+                });
+            }
+            return res.status(200).json({ message: SUC_MESSAGE });
+        });
+    })
 }
