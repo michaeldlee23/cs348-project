@@ -4,7 +4,9 @@ const bcrypt = require('bcryptjs');
 const pool = require('../connection');
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
-const { generateAccessToken, authenticateToken, isAdvisor } = require('../util/authenticate');
+const { executeQuery } = require('../util/db');
+const { generateAccessToken, authenticateToken, isAdvisor, isAdmin } = require('../util/authenticate');
+
 
 const ENDPOINT = '/advisors';
 const ENTITY = 'advisors';
@@ -147,6 +149,23 @@ module.exports = (app) => {
                 message: SUC_MESSAGE,
                 data: payload
             });
+        });
+    });
+
+    app.delete(ENDPOINT + '/:id', authenticateToken, isAdmin, async (req, res) => {
+        const SUC_MESSAGE = 'Successfully deleted advisor record';
+        const ERR_MESSAGE = 'Failed to delete advisor record';
+        const advisorID = req.params.id;
+        const sql = `DELETE FROM ${ENTITY} WHERE id=?`;
+        executeQuery(sql, [advisorID], async (err, info) => {
+            if (err) return err.status(500).json(err);
+            if (info.length == 0) {
+                return res.status(404).json({
+                    error: ERR_MESSAGE,
+                    message: 'No such advisor found',
+                });
+            }
+            return res.status(200).json({ message: SUC_MESSAGE });
         });
     });
 }

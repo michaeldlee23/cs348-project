@@ -4,6 +4,10 @@ const bcrypt = require('bcryptjs');
 const pool = require('../connection');
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
+<<<<<<< HEAD
+=======
+const { executeQuery } = require('../util/db');
+>>>>>>> endpoints
 const { generateAccessToken, authenticateToken, isAdmin } = require('../util/authenticate');
 
 const ENDPOINT = '/admin';
@@ -147,6 +151,23 @@ module.exports = (app) => {
                 message: SUC_MESSAGE,
                 data: payload
             });
+        });
+    });
+
+    app.delete(ENDPOINT + '/:id', authenticateToken, isAdmin, async (req, res) => {
+        const SUC_MESSAGE = 'Successfully deleted admin record';
+        const ERR_MESSAGE = 'Failed to delete admin record';
+        const adminID = req.params.id;
+        const sql = `DELETE FROM ${ENTITY} WHERE id=?`;
+        executeQuery(sql, [adminID], async (err, info) => {
+            if (err) return err.status(500).json(err);
+            if (info.length == 0) {
+                return res.status(404).json({
+                    error: ERR_MESSAGE,
+                    message: 'No such admin found',
+                });
+            }
+            return res.status(200).json({ message: SUC_MESSAGE });
         });
     });
 }

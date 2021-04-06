@@ -3,6 +3,8 @@
 const pool = require('../connection');
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
+const { executeQuery } = require('../util/db');
+const { authenticateToken, isAdmin } = require('../util/authenticate');
 
 const ENDPOINT = '/courses';
 const ENTITY = 'courses';
@@ -78,6 +80,23 @@ module.exports = (app) => {
                 message: SUC_MESSAGE,
                 data: payload
             });
+        });
+    });
+
+    app.delete(ENDPOINT + '/:id', authenticateToken, isAdmin, async (req, res) => {
+        const SUC_MESSAGE = 'Successfully deleted course record';
+        const ERR_MESSAGE = 'Failed to delete course record';
+        const courseID = req.params.id;
+        const sql = `DELETE FROM ${ENTITY} WHERE id=?`;
+        executeQuery(sql, [courseID], async (err, info) => {
+            if (err) return err.status(500).json(err);
+            if (info.length == 0) {
+                return res.status(404).json({
+                    error: ERR_MESSAGE,
+                    message: 'No such course found',
+                });
+            }
+            return res.status(200).json({ message: SUC_MESSAGE });
         });
     });
 }

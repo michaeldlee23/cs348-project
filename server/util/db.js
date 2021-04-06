@@ -26,7 +26,67 @@ const executeQuery = async (query, vars, callback) => {
     })
 }
 
+const executeTransaction = async (queries, vars, callback) => {
+    const UNEXPECTED_ERROR = 'Internal Service Error'
+    await pool.getConnection(async (err, connection) => {
+        if (err) {
+            return callback({
+                error: UNEXPECTED_ERROR,
+                message: err.message,
+            });
+        }
+        await connection.query('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
+        await connection.beginTransaction(async (err) => {
+            if (err) {
+                connection.rollback(() => { connection.release(); });
+            } else {
+                const queryPromises = [];
+                for (let i = 0; i < queries.length; i++) {
+                    queryPromises.push(new Promise((resolve, reject) => {
+                        connection.query(queries[i], vars[i], (err, results) => {
+                            if (err) reject(err);
+                            else resolve(results);
+                        });
+                    }));
+                }
+                await Promise.all(queryPromises)
+                    .then((results) => {
+                        connection.commit((err) => {
+                            console.log('Committing');
+                            if (err) {
+                                connection.rollback((err) => {
+                                    if (err) connection.release();
+                                });
+                                return callback({
+                                    error: UNEXPECTED_ERROR,
+                                    message: 'Failed to commit transaction',
+                                });
+                            } else {
+                                connection.release();
+                                return callback(null, results);
+                            }
+                        });
+                    })
+                    .catch((err) => {
+                        console.log(err.message);
+                        console.log('Rolling back...');
+                        connection.rollback((err) => {
+                            if (err) console.log('Rollback failed.');
+                            else console.log('Rollback successful.');
+                            connection.release(); 
+                        });
+                        return callback({
+                            error: UNEXPECTED_ERROR,
+                            message: err.message,
+                        });
+                    });
+            }
+        });
+    });
+}
+
 module.exports = {
     findStudentByEmail,
     executeQuery,
+    executeTransaction,
 }
