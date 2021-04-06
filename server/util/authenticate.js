@@ -54,6 +54,13 @@ const isAdvisor = async (req, res, next) => {
     }
 }
 
+const isAdmin = async (req, res, next) => {
+    if (req.user.scope.includes('ADMIN')) {
+        next();
+    } else {
+        return res.status(401).send('Unauthorized');
+    }
+}
 
 module.exports = {
     generateAccessToken,
@@ -61,4 +68,5 @@ module.exports = {
     isStudent,
     isTeacher,
     isAdvisor,
+    isAdmin,
 };

@@ -84,19 +84,19 @@ module.exports = (app) => {
     });
 
     app.delete(ENDPOINT + '/:id', authenticateToken, isAdmin, async (req, res) => {
-        const SUC_MESSAGE = 'Successfully deleted student record';
-        const ERR_MESSAGE = 'Failed to delete student record';
-        const studentID = req.params.id;
+        const SUC_MESSAGE = 'Successfully deleted course record';
+        const ERR_MESSAGE = 'Failed to delete course record';
+        const courseID = req.params.id;
         const sql = `DELETE FROM ${ENTITY} WHERE id=?`;
-        executeQuery(sql, [studentID], async (err, info) => {
+        executeQuery(sql, [courseID], async (err, info) => {
             if (err) return err.status(500).json(err);
             if (info.length == 0) {
                 return res.status(404).json({
                     error: ERR_MESSAGE,
-                    message: 'No such student found',
+                    message: 'No such course found',
                 });
             }
             return res.status(200).json({ message: SUC_MESSAGE });
         });
-    })
+    });
 }
