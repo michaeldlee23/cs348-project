@@ -3,7 +3,7 @@
 const bcrypt = require('bcryptjs');
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
-const { findStudentByEmail, executeQuery } = require('../util/db');
+const { findUserByEmail, executeQuery } = require('../util/db');
 const { generateAccessToken, authenticateToken, isStudent, isAdmin } = require('../util/authenticate');
 
 const ENDPOINT = '/students';
@@ -29,7 +29,7 @@ module.exports = (app) => {
 
         const insertSQL = `INSERT INTO ${ENTITY}(${Object.keys(payload).toString()}) VALUES (?)`;
 
-        findStudentByEmail(payload.email, (err, results) => {
+        findUserByEmail(payload.email, ENTITY, (err, results) => {
             if (err) return res.status(500).json(err);
             else {
                 if (results) {
