@@ -16,5 +16,8 @@ require('./routes/organizations')(app);
 require('./routes/studentOrganization')(app);
 
 require('./routes/advisors')(app);
+require('./routes/studentAdvisor')(app);
+
+require('./routes/admin')(app);
 
 module.exports = app;
