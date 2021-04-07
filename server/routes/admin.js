@@ -86,7 +86,7 @@ module.exports = (app) => {
         const ERR_MESSAGE = 'Failed to add admin';
         const SUC_MESSAGE = 'Successfully added admin';
         const payload = req.body;
-        const err = validation.request.admin.postAdminSchema.validate(payload).error;
+        const err = validation.request.admins.postAdminSchema.validate(payload).error;
         if (err) {
             return res.status(400).json({
                 message: ERR_MESSAGE,
@@ -122,7 +122,7 @@ module.exports = (app) => {
         const ERR_MESSAGE = 'Failed to update admin record';
         const SUC_MESSAGE = 'Successfully updated admin record';
         const payload = req.body;
-        const err = validation.request.admin.putAdminSchema.validate(payload).error;
+        const err = validation.request.admins.putAdminSchema.validate(payload).error;
         if (err) {
             return res.status(400).json({
                 message: ERR_MESSAGE,
