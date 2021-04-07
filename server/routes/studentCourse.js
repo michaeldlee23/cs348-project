@@ -1,28 +1,23 @@
 'use strict';
 
-const pool = require('../connection');
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
+const { checkIfRecordExists, executeQuery } = require('../util/db');
+const { authenticateToken, isTeacher, isAdvisor } = require('../util/authenticate');
 
 const ENDPOINT = '/studentCourse';
 const ENTITY = 'studentCourseRel';
 
 module.exports = (app) => {
-    app.get(ENDPOINT, (req, res) => {
-        const ERR_MESSAGE = 'Failed to retrieve student-course mappings';
+    app.get(ENDPOINT, authenticateToken, isTeacher, (req, res) => {
         const sql = `SELECT * FROM ${ENTITY}`;
-        pool.query(sql, (err, results) => {
-            if (err) {
-                return res.status(500).json({
-                    message: ERR_MESSAGE,
-                    data: err.message
-                });
-            }
+        executeQuery(sql, (err, results) => {
+            if (err) return res.status(500).json(err);
             return res.status(200).json(results);
         });
     });
 
-    app.post(ENDPOINT, (req, res) => {
+    app.post(ENDPOINT, authenticateToken, isAdvisor, async (req, res) => {
         const ERR_MESSAGE = 'Failed to enrolled student in course';
         const SUC_MESSAGE = 'Successfully enrolled student in course';
         const payload = req.body;
@@ -33,23 +28,42 @@ module.exports = (app) => {
                 data: err.message
             });
         }
-        // TODO: This doesn't check if the ids actually exist
-        const sql = `INSERT INTO ${ENTITY}(${Object.keys(payload).toString()}) VALUES (?)`;
-        pool.query(sql, [Object.values(payload)], async (err) => {
-            if (err) {
-                return res.status(500).json({
-                    message: ERR_MESSAGE,
-                    data: err.message
-                });
-            }
-            return res.status(200).json({
-                message: SUC_MESSAGE,
-                data: payload
+        const queryPromises = [];
+        queryPromises.push(new Promise((resolve, reject) => {
+            checkIfRecordExists(payload.studentID, 'students', (err, result) => {
+                if (err) reject(err);
+                if (result) resolve();
+                reject();
             });
-        });
+        }));
+        queryPromises.push(new Promise((resolve, reject) => {
+            checkIfRecordExists(payload.courseID, 'courses', (err, result) => {
+                if (err) reject(err);
+                if (result) resolve();
+                reject();
+            });
+        }));
+        const sql = `INSERT INTO ${ENTITY}(${Object.keys(payload).toString()}) VALUES (?)`;
+        await Promise.all(queryPromises)
+            .then(() => {
+                executeQuery(sql, [Object.values(payload)], async (err) => {
+                    if (err) return res.status(500).json(err);
+                    return res.status(200).json({
+                        message: SUC_MESSAGE,
+                        data: payload,
+                    })
+                })
+            })
+            .catch((err) => {
+                if (err) return res.status(500).json(err);
+                return res.status(404).json({
+                    error: ERR_MESSAGE,
+                    message: 'Could not find specified users',
+                });
+            })
     });
 
-    app.put(ENDPOINT, (req, res) => {
+    app.put(ENDPOINT, authenticateToken, isTeacher, (req, res) => {
         const ERR_MESSAGE = 'Failed to update course grade for student';
         const SUC_MESSAGE = 'Successfully updated course grade for student';
         const payload = req.body;
@@ -64,24 +78,19 @@ module.exports = (app) => {
         delete payload.studentID;
         delete payload.courseID;
         const values = jsonConverter.payloadToUpdate(payload);
-        const sql = `UPDATE ${ENTITY} SET ${values} WHERE studentID=${studentID} AND courseID=${courseID}`;
-        pool.query(sql, async (err, results) => {
+        const sql = `UPDATE ${ENTITY} SET ${values} WHERE studentID=? AND courseID=?`;
+        executeQuery(sql, [studentID, courseID], (err, results) => {
+            if (err) return res.status(500).json(err);
             if (results.affectedRows == 0) {
                 return res.status(404).json({
                     message: ERR_MESSAGE,
-                    data: `No student with id ${studentID} in course with id ${courseID}`
-                });
-            }
-            if (err) {
-                return res.status(500).json({
-                    message: ERR_MESSAGE,
-                    data: err.message
+                    data: 'Could not find specified student and course'
                 });
             }
             return res.status(200).json({
                 message: SUC_MESSAGE,
-                data: payload
+                data: payload,
             });
-        });
+        })
     });
 }
