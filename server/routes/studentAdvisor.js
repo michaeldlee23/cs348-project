@@ -27,7 +27,6 @@ module.exports = (app) => {
                 data: err.message
             });
         }
-        // TODO: Check if the ids actually exist
         const queryPromises = [];
         queryPromises.push(new Promise((resolve, reject) => {
             checkIfRecordExists(payload.studentID, 'students', (err, result) => {
