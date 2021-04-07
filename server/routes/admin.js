@@ -4,10 +4,7 @@ const bcrypt = require('bcryptjs');
 const pool = require('../connection');
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
-<<<<<<< HEAD
-=======
 const { executeQuery } = require('../util/db');
->>>>>>> endpoints
 const { generateAccessToken, authenticateToken, isAdmin } = require('../util/authenticate');
 
 const ENDPOINT = '/admin';
