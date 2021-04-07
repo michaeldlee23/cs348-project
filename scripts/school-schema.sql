@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 SET FOREIGN_KEY_CHECKS=0;
 
->>>>>>> endpoints
 DROP TABLE IF EXISTS admin;
 DROP TABLE IF EXISTS students;
 DROP TABLE IF EXISTS teachers;
@@ -14,7 +11,6 @@ DROP TABLE IF EXISTS teacherCourseRel;
 DROP TABLE IF EXISTS studentCourseRel;
 DROP TABLE IF EXISTS studentAdvisorRel;
 DROP TABLE IF EXISTS studentOrganizationRel;
-DROP TABLE IF EXISTS teacherDepartmentRel;
 DROP TABLE IF EXISTS teacherOrganizationRel;
 
 CREATE TABLE admin (
@@ -28,20 +24,6 @@ CREATE TABLE admin (
     birthdate date NOT NULL,
     salary float,
     phone char(12) NOT NULL,
-    scope varchar(100),
-    PRIMARY KEY (id)
-);
-ALTER TABLE admin AUTO_INCREMENT=10000;
-
-CREATE TABLE admin (
-    id int(16) NOT NULL AUTO_INCREMENT,
-    email varchar(100) NOT NULL,
-    password varchar(255) NOT NULL,
-    role varchar(100) NOT NULL,
-    last varchar(50) NOT NULL,
-    first varchar(50) NOT NULL,
-    middle varchar(1),
-    salary float,
     scope varchar(100),
     PRIMARY KEY (id)
 );
@@ -75,7 +57,9 @@ CREATE TABLE teachers (
     salary float,
     phone char(12) NOT NULL,
     scope varchar(100),
-    PRIMARY KEY (id)
+    departmentID int(16) NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (departmentID) REFERENCES departments (id)
 );
 ALTER TABLE teachers AUTO_INCREMENT=10000;
 
@@ -157,16 +141,6 @@ CREATE TABLE studentOrganizationRel (
         REFERENCES students (id) ON DELETE CASCADE,
     CONSTRAINT studentOrganizationRel_fk2 FOREIGN KEY (organizationID)
         REFERENCES organizations (id) ON DELETE CASCADE
-);
-
-CREATE TABLE teacherDepartmentRel (
-    teacherID int(16) NOT NULL,
-    departmentID int(16) NOT NULL,
-    position varchar(50),
-    CONSTRAINT teacherDepartmentRel_fk1 FOREIGN KEY (teacherID)
-        REFERENCES teachers (id) ON DELETE CASCADE,
-    CONSTRAINT teacherDepartmentRel_fk2 FOREIGN KEY (departmentID)
-        REFERENCES departments (id) ON DELETE CASCADE
 );
 
 CREATE TABLE teacherOrganizationRel (
