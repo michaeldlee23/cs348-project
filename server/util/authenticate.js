@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../../env/config');
 
 const generateAccessToken = (payload) => {
-    const token = jwt.sign(payload, config.secret, { expiresIn: '1d' });
+    const token = jwt.sign(payload, config.secret, { expiresIn: '1y' });
     return token;
 }
 
@@ -39,7 +39,9 @@ const isStudent = async (req, res, next) => {
 }
 
 const isTeacher = async (req, res, next) => {
-    if (req.user.scope.includes('TEACHER') || req.user.scope.includes('ADMIN')) {
+    if (req.user.scope.includes('TEACHER') 
+        || req.user.scope.includes('ADVISOR')
+        || req.user.scope.includes('ADMIN')) {
         next();
     } else {
         return res.status(401).send('Unauthorized');
