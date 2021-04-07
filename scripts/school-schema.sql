@@ -9,7 +9,6 @@ DROP TABLE IF EXISTS organizations;
 DROP TABLE IF EXISTS departments;
 DROP TABLE IF EXISTS teacherCourseRel;
 DROP TABLE IF EXISTS studentCourseRel;
-DROP TABLE IF EXISTS studentAdvisorRel;
 DROP TABLE IF EXISTS studentOrganizationRel;
 DROP TABLE IF EXISTS teacherOrganizationRel;
 
@@ -40,8 +39,10 @@ CREATE TABLE students (
     year tinyint NOT NULL,
     gpa float DEFAULT NULL,
     phone char(12) NOT NULL,
+    advisorID int(16) NOT NULL,
     scope varchar(100),
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    FOREIGN KEY (advisorID) REFERENCES advisors (id)
 );
 -- Set initial PK value
 ALTER TABLE students AUTO_INCREMENT=10000;
@@ -121,16 +122,6 @@ CREATE TABLE studentCourseRel (
         REFERENCES students (id) ON DELETE CASCADE,
     CONSTRAINT studentCourseRel_fk2 FOREIGN KEY (courseID)
         REFERENCES courses (id) ON DELETE CASCADE
-);
-
-CREATE TABLE studentAdvisorRel (
-    studentID int(16) NOT NULL,
-    advisorID int(16) NOT NULL,
-    PRIMARY KEY (studentID, advisorID),
-    CONSTRAINT studentAdvisorRel_fk1 FOREIGN KEY (studentID)
-        REFERENCES students (id) ON DELETE CASCADE,
-    CONSTRAINT studentAdvisorRel_fk2 FOREIGN KEY (advisorID)
-        REFERENCES advisors (id) ON DELETE CASCADE
 );
 
 CREATE TABLE studentOrganizationRel (

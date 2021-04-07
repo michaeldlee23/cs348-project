@@ -4,7 +4,7 @@ const pool = require('../connection');
 
 const findUserByEmail = async (email, entity, callback) => {
     const sql = `SELECT id FROM ${entity} WHERE email = ?`;
-    executeQuery(sql [email], (err, results) => {
+    executeQuery(sql, [email], (err, results) => {
         if (err) return callback(err);
         if (results.length == 0) return callback();
         return callback(null, results[0]);
