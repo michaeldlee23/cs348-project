@@ -10,6 +10,12 @@ const ENDPOINT = '/students';
 const ENTITY = 'students';
 
 module.exports = (app) => {
+
+    app.get(ENDPOINT + '/register', async (req,res) => {
+        return res.render('registerStudents.html');
+    });
+
+
     app.post(ENDPOINT + '/register', async (req, res) => {
         const ERR_MESSAGE = 'Failed to add student';
         const SUC_MESSAGE = 'Successfully added student';

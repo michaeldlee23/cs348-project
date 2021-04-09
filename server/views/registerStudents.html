@@ -24,6 +24,57 @@
 
 <body>
   <h2>Add Student</h2>
+
+  <form id="registerStud" action="/students/register" method="POST">
+    
+    <label for="email">email:</label>
+    <input type="text" id="email" name="email"><br><br>
+
+    <label for="password">password:</label>
+    <input type="text" id="password" name="password"><br><br>
+
+    <label for="last">last:</label>
+    <input type="text" id="last" name="last"><br><br>
+
+    <label for="first">first:</label>
+    <input type="text" id="first" name="first"><br><br>
+
+    <label for="middle">middle:</label>
+    <input type="text" id="middle" name="middle"><br><br>
+
+    <label for="year">year:</label>
+    <input type="number" id="year" name="year"><br><br>
+
+    <label for="birthdate">birthdate (yyyy-mm-dd):</label>
+    <input type="date" id="birthdate" name="birthdate"><br><br>
+    
+    <label for="advisorID">advisorID:</label>
+    <input type="number" id="advisorID" name="advisorID"><br><br>
+    
+    <label for="phone">phone:</label>
+    <input type="text" id="phone" name="phone"><br><br>
+    
+    <input type="submit" value="Submit">
+  </form>
+
+  <script>
+    $("#registerStud").submit(function(event) {
+      event.preventDefault();
+      var $form = $(this),
+        url = $form.attr('action');
+      var posting = $.post(url, {
+        email: $('#email').val(),
+        password: $('#password').val()
+      });
+      posting.done(function(data) {
+        $('#result').text('success');
+      });
+      posting.fail(function() {
+        $('#result').text('failed');
+      });
+    });
+  </script>
+  <!-- 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -73,7 +124,7 @@
         .catch((e) => console.error(e));
 
     });
-  </script>
+  </script> -->
 </body>
 
 </html>

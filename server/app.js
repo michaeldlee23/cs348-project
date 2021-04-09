@@ -2,8 +2,9 @@
 
 const express = require('express');
 const app = express();
+app.set('views', __dirname + '/views');
+app.engine('html', require('ejs').renderFile);
 app.use(express.json());
-
 require('./routes/students')(app);
 
 require('./routes/courses')(app);
@@ -20,5 +21,7 @@ require('./routes/advisors')(app);
 require('./routes/admin')(app);
 
 require('./routes/admin')(app);
+
+
 
 module.exports = app;

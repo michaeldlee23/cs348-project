@@ -18,7 +18,7 @@ module.exports = (app) => {
                     data: err.message
                 });
             }
-            return res.status(200).json(results);
+            return   res.status(200).json(results); 
         });
     });
 
