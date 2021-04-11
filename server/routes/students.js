@@ -12,7 +12,7 @@ const ENTITY = 'students';
 module.exports = (app) => {
 
     app.get(ENDPOINT + '/register', async (req,res) => {
-        return res.render('registerStudents.html');
+        return res.render('registerStudents.ejs');
     });
 
 
