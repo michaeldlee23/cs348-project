@@ -24,8 +24,8 @@ module.exports = (app) => {
         const err = validation.request.students.postStudentCourseSchema.validate(payload).error;
         if (err) {
             return res.status(400).json({
-                message: ERR_MESSAGE,
-                data: err.message
+                error: ERR_MESSAGE,
+                message: err.message
             });
         }
         const queryPromises = [];
@@ -52,15 +52,15 @@ module.exports = (app) => {
                         message: SUC_MESSAGE,
                         data: payload,
                     })
-                })
+                });
             })
             .catch((err) => {
                 if (err) return res.status(500).json(err);
                 return res.status(404).json({
                     error: ERR_MESSAGE,
-                    message: 'Could not find specified users',
+                    message: 'Could not find specified student and course',
                 });
-            })
+            });
     });
 
     app.put(ENDPOINT, authenticateToken, isTeacher, (req, res) => {
@@ -70,11 +70,11 @@ module.exports = (app) => {
         const err = validation.request.students.putStudentCourseSchema.validate(payload).error;
         if (err) {
             return res.status(400).json({
-                message: ERR_MESSAGE,
-                data: err.message
+                error: ERR_MESSAGE,
+                message: err.message,
             });
         }
-        const {studentID, courseID} = payload;
+        const { studentID, courseID } = payload;
         delete payload.studentID;
         delete payload.courseID;
         const values = jsonConverter.payloadToUpdate(payload);
@@ -83,14 +83,39 @@ module.exports = (app) => {
             if (err) return res.status(500).json(err);
             if (results.affectedRows == 0) {
                 return res.status(404).json({
-                    message: ERR_MESSAGE,
-                    data: 'Could not find specified student and course'
+                    error: ERR_MESSAGE,
+                    message: 'Could not find specified student and course'
                 });
             }
             return res.status(200).json({
                 message: SUC_MESSAGE,
                 data: payload,
             });
-        })
+        });
+    });
+
+    app.delete(ENDPOINT, authenticateToken, isAdvisor, (req, res) => {
+        const ERR_MESSAGE = 'Failed to drop student from course';
+        const SUC_MESSAGE = 'Successfully dropped student from course';
+        const payload = req.body;
+        const err = validation.request.students.deleteStudentCourseSchema.validate(payload).error;
+        if (err) {
+            return res.status(400).json({
+                error: ERR_MESSAGE,
+                message: err.message,
+            });
+        }
+        const { studentID, courseID } = payload;
+        const sql = `DELETE FROM ${ENTITY} WHERE studentID=? AND courseID=?`;
+        executeQuery(sql, [studentID, courseID], (err, results) => {
+            if (err) return res.status(500).json(err);
+            if (results.affectedRows == 0) {
+                return res.status(404).json({
+                    error: ERR_MESSAGE,
+                    message: 'Could not find specified student and course',
+                });
+            }
+            return res.status(200).json({ message: SUC_MESSAGE });
+        });
     });
 }
