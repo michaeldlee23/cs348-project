@@ -8,6 +8,7 @@ const putStudentCourseSchema = require('./putStudentCourse');
 const deleteStudentCourseSchema = require('./deleteStudentCourse');
 const postStudentOrganizationSchema = require('./postStudentOrganization');
 const putStudentOrganizationSchema = require('./putStudentOrganization');
+const deleteStudentOrganizationSchema = require('./deleteStudentOrganization');
 
 module.exports = {
     getStudentSchema,
@@ -17,5 +18,6 @@ module.exports = {
     deleteStudentCourseSchema,
     putStudentCourseSchema,
     postStudentOrganizationSchema,
-    putStudentOrganizationSchema
+    putStudentOrganizationSchema,
+    deleteStudentOrganizationSchema,
 }
