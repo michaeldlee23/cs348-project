@@ -10,7 +10,7 @@ DROP TABLE IF EXISTS departments;
 DROP TABLE IF EXISTS teacherCourseRel;
 DROP TABLE IF EXISTS studentCourseRel;
 DROP TABLE IF EXISTS studentOrganizationRel;
-DROP TABLE IF EXISTS teacherOrganizationRel;
+
 
 CREATE TABLE admin (
     id int(16) NOT NULL AUTO_INCREMENT,
@@ -99,6 +99,7 @@ ALTER TABLE organizations AUTO_INCREMENT=10000;
 CREATE TABLE departments (
     id int(16) NOT NULL AUTO_INCREMENT,
     name varchar (100),
+    budget float,
     PRIMARY KEY (id)
 );
 ALTER TABLE departments AUTO_INCREMENT=10000;
@@ -131,15 +132,6 @@ CREATE TABLE studentOrganizationRel (
     CONSTRAINT studentOrganizationRel_fk1 FOREIGN KEY (studentID)
         REFERENCES students (id) ON DELETE CASCADE,
     CONSTRAINT studentOrganizationRel_fk2 FOREIGN KEY (organizationID)
-        REFERENCES organizations (id) ON DELETE CASCADE
-);
-
-CREATE TABLE teacherOrganizationRel (
-    teacherID int(16) NOT NULL,
-    organizationID int(16) NOT NULL,
-    CONSTRAINT teacherOrganizationRel_fk1 FOREIGN KEY (teacherID)
-        REFERENCES teachers (id) ON DELETE CASCADE,
-    CONSTRAINT teacherOrganizationRel_fk2 FOREIGN KEY (organizationID)
         REFERENCES organizations (id) ON DELETE CASCADE
 );
 

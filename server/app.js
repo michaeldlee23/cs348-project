@@ -21,4 +21,6 @@ require('./routes/admin')(app);
 
 require('./routes/admin')(app);
 
+require('./routes/departments')(app);
+
 module.exports = app;
