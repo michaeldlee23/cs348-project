@@ -58,7 +58,7 @@ CREATE TABLE teachers (
     salary float,
     phone char(12) NOT NULL,
     scope varchar(100),
-    departmentID int(16) NOT NULL,
+    departmentID int(16),
     PRIMARY KEY (id),
     FOREIGN KEY (departmentID) REFERENCES departments (id)
 );
@@ -136,3 +136,5 @@ CREATE TABLE studentOrganizationRel (
 );
 
 SET FOREIGN_KEY_CHECKS=1;
+
+source trigger-before-delete-departments.sql;
