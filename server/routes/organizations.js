@@ -2,7 +2,7 @@
 
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
-const { executeQuery } = require('../util/db');
+const { executeQuery, executeTransaction } = require('../util/db');
 const { authenticateToken, isStudent, isAdmin } = require('../util/authenticate');
 
 const ENDPOINT = '/organizations';
@@ -61,7 +61,7 @@ module.exports = (app) => {
         const ERR_MESSAGE = 'Failed to update organization record';
         const SUC_MESSAGE = 'Successfully updated organization record';
         const payload = req.body;
-        const err = validation.request.organizations.putOrganizationSchema.validate(payload).error;
+        const err = validation.request.organizations.putOrganizationDetailsSchema.validate(payload).error;
         if (err) {
             return res.status(400).json({
                 error: ERR_MESSAGE,
@@ -84,6 +84,58 @@ module.exports = (app) => {
             });
         });
     });
+
+    app.put(ENDPOINT + '/budget', authenticateToken, isAdmin, (req, res) => {
+        const ERR_MESSAGE = 'Failed to update organization budget';
+        const SUC_MESSAGE = 'Successfully updated organization budget';
+        const payload = req.body;
+        const err = validation.request.organizations.putOrganizationBudgetSchema.validate(payload).error;
+        if (err) {
+            return res.status(400).json({
+                error: ERR_MESSAGE,
+                message: err.message,
+            });
+        }
+        const queries = [];
+        const vars = [];
+        // Withdraw from department budget
+        const withdrawSQL = `UPDATE departments
+                             SET budget=(
+                                 SELECT budget
+                                 FROM (SELECT * FROM departments) depts
+                                 WHERE id=(
+                                     SELECT departmentID
+                                     FROM (SELECT * FROM organizations) orgs
+                                     WHERE id=?
+                                 )
+                             ) - ?
+                             WHERE id=(
+                                 SELECT departmentID
+                                 FROM (SELECT * FROM organizations) orgs
+                                 WHERE id=?
+                             )`;
+        queries.push(withdrawSQL);
+        vars.push([payload.id, payload.amount, payload.id])
+        // Deposit into organization budget
+        const depositSQL = `UPDATE organizations
+                            SET budget=(
+                                SELECT budget
+                                FROM (SELECT * FROM organizations) orgs
+                                WHERE id=?
+                            ) + ?
+                            WHERE id=?`;
+        queries.push(depositSQL);
+        vars.push([payload.id, payload.amount, payload.id]);
+
+        const isolation = "READ COMMITTED";
+        executeTransaction(isolation, queries, vars, (err) => {
+            if (err) {
+                err.error = ERR_MESSAGE;
+                return res.status(500).json(err);
+            }
+            return res.status(200).json({ message: SUC_MESSAGE });
+        });
+    })
 
     app.delete(ENDPOINT + '/:id', authenticateToken, isAdmin, async (req, res) => {
         const SUC_MESSAGE = 'Successfully deleted organization record';

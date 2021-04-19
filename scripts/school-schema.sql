@@ -21,7 +21,7 @@ CREATE TABLE admin (
     first varchar(50) NOT NULL,
     middle varchar(1),
     birthdate date NOT NULL,
-    salary float,
+    salary float DEFAULT 0 CHECK (salary >= 0),
     phone char(12) NOT NULL,
     scope varchar(100),
     PRIMARY KEY (id)
@@ -55,7 +55,7 @@ CREATE TABLE teachers (
     first varchar(50) NOT NULL,
     middle varchar(1),
     birthdate date NOT NULL,
-    salary float,
+    salary float DEFAULT 0 CHECK (salary >= 0),
     phone char(12) NOT NULL,
     scope varchar(100),
     departmentID int(16),
@@ -72,7 +72,7 @@ CREATE TABLE advisors (
     first varchar(50) NOT NULL,
     middle varchar(1),
     birthdate date NOT NULL,
-    salary float,
+    salary float DEFAULT 0 CHECK (salary >= 0),
     phone char(12) NOT NULL,
     scope varchar(100),
     PRIMARY KEY (id)
@@ -91,15 +91,18 @@ CREATE TABLE organizations (
     id int(16) NOT NULL AUTO_INCREMENT,
     name varchar(200),
     type varchar(50),
-    budget float,
-    PRIMARY KEY (id)
+    budget float DEFAULT 0 CHECK (budget >= 0),
+    departmentID int(16) NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT organizationDepartmentRel_fk1 FOREIGN KEY (departmentID)
+        REFERENCES departments (id) ON DELETE CASCADE
 );
 ALTER TABLE organizations AUTO_INCREMENT=10000;
 
 CREATE TABLE departments (
     id int(16) NOT NULL AUTO_INCREMENT,
     name varchar (100),
-    budget float,
+    budget float DEFAULT 0 CHECK (budget >= 0),
     PRIMARY KEY (id)
 );
 ALTER TABLE departments AUTO_INCREMENT=10000;
@@ -124,6 +127,7 @@ CREATE TABLE studentCourseRel (
     CONSTRAINT studentCourseRel_fk2 FOREIGN KEY (courseID)
         REFERENCES courses (id) ON DELETE CASCADE
 );
+CREATE INDEX grade ON studentCourseRel(grade);
 
 CREATE TABLE studentOrganizationRel (
     studentID int(16) NOT NULL,
@@ -134,6 +138,7 @@ CREATE TABLE studentOrganizationRel (
     CONSTRAINT studentOrganizationRel_fk2 FOREIGN KEY (organizationID)
         REFERENCES organizations (id) ON DELETE CASCADE
 );
+CREATE INDEX position ON studentOrganizationRel(position);
 
 SET FOREIGN_KEY_CHECKS=1;
 
