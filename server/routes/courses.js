@@ -1,25 +1,50 @@
 'use strict';
 
-const pool = require('../connection');
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
 const { executeQuery } = require('../util/db');
-const { authenticateToken, isAdmin } = require('../util/authenticate');
+const { authenticateToken, isAdmin, isTeacher } = require('../util/authenticate');
 
 const ENDPOINT = '/courses';
 const ENTITY = 'courses';
 
 module.exports = (app) => {
     app.get(ENDPOINT, (req, res) => {
-        const ERR_MESSAGE = 'Failed to retrieve courses';
         const sql = `SELECT * FROM ${ENTITY}`;
-        pool.query(sql, (err, results) => {
-            if (err) {
-                return res.status(500).json({
-                    message: ERR_MESSAGE,
-                    data: err.message
-                });
-            }
+        executeQuery(sql, (err, results) => {
+            if (err) return res.status(500).json(err);
+            return res.status(200).json(results);
+        });
+    });
+
+    app.get(ENDPOINT + '/:id', authenticateToken, isTeacher, (req, res) => {
+        const ERR_MESSAGE = 'Failed to retrieve course details';
+        const courseID = req.params.id;
+        const params = req.query;
+        const err = validation.request.courses.getCourseSchema.validate(params).error;
+        if (err) {
+            return res.status(400).json({
+                error: ERR_MESSAGE,
+                message: 'Malformed request',
+            });
+        }
+        params.sortby = params.sortby || 'last';
+        params.order = params.order || 'asc';
+        params.limit = params.limit || 30;
+        const searchLast = params.last ? `AND last LIKE '${params.last}%'` : '';
+        const searchFirst = params.first ? `AND first LIKE '${params.first}%'` : '';
+
+        // No prepared statement because we manually sanitize via request validation
+        const sql = `SELECT S.id, S.last, S.first, S.middle, grade
+                     FROM students S 
+                     INNER JOIN studentCourseRel SC ON S.id = SC.studentID
+                     INNER JOIN courses C ON SC.courseID = C.id
+                     WHERE C.id = ? ${searchLast} ${searchFirst}
+                     ORDER BY ${params.sortby} ${params.order}
+                     LIMIT ${params.limit}`;
+        executeQuery(sql, [courseID], (err, results) => {
+            if (err) return res.status(500).json(err);
+            console.log(results);
             return res.status(200).json(results);
         });
     });
@@ -31,21 +56,16 @@ module.exports = (app) => {
         const err = validation.request.courses.postCourseSchema.validate(payload).error;
         if (err) {
             return res.status(400).json({
-                message: ERR_MESSAGE,
-                data: err.message
+                error: ERR_MESSAGE,
+                message: err.message
             });
         }
         const sql = `INSERT INTO ${ENTITY}(${Object.keys(payload).toString()}) VALUES (?)`;
-        pool.query(sql, [Object.values(payload)], async (err) => {
-            if (err) {
-                return res.status(500).json({
-                    message: ERR_MESSAGE,
-                    data: err.message
-                });
-            }
+        executeQuery(sql, [Object.values(payload)], (err) => {
+            if (err) return res.status(500).json(err);
             return res.status(200).json({
                 message: SUC_MESSAGE,
-                data: payload
+                data: payload,
             });
         });
     });
@@ -63,22 +83,17 @@ module.exports = (app) => {
         }
         const values = jsonConverter.payloadToUpdate(payload);
         const sql = `UPDATE ${ENTITY} SET ${values} WHERE id=${payload.id}`;
-        pool.query(sql, async (err, results) => {
+        executeQuery(sql, (err, results) => {
             if (results.affectedRows == 0) {
                 return res.status(404).json({
-                    message: ERR_MESSAGE,
-                    data: `No course with id ${payload.id}`
+                    error: ERR_MESSAGE,
+                    message: 'No such course found',
                 });
             }
-            if (err) {
-                return res.status(500).json({
-                    message: ERR_MESSAGE,
-                    data: err.message
-                });
-            }
+            if (err) return res.status(500).json(err);
             return res.status(200).json({
                 message: SUC_MESSAGE,
-                data: payload
+                data: payload,
             });
         });
     });
