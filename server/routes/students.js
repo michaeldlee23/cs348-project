@@ -101,8 +101,6 @@ module.exports = (app) => {
     });
 
     app.post(ENDPOINT + '/:id', authenticateToken, isStudent, async (req, res) => {
-        // TODO: Make this secure so students can't see each other's info.
-        //       Might need to make this a POST and take password as payload.
         const ERR_MESSAGE = 'Failed to retrieve student information';
         const payload = req.body;
         const err = validation.request.students.getStudentSchema.validate(payload).error;

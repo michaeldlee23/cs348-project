@@ -78,8 +78,6 @@ module.exports = (app) => {
     });
 
     app.post(ENDPOINT + '/:id', authenticateToken, isTeacher, async (req, res) => {
-        // TODO: Make this secure so teachers can't see each other's info.
-        //       Might need to make this a POST and take password as payload.
         const ERR_MESSAGE = 'Failed to retrieve teacher information';
         const payload = req.body;
         const err = validation.request.teachers.getTeacherSchema.validate(payload).error;
@@ -88,9 +86,7 @@ module.exports = (app) => {
                 error: ERR_MESSAGE,
                 message: err.message,
             });
-        const sql = `SELECT *
-                     FROM ${ENTITY}
-                     WHERE id=?`;
+        const sql = `SELECT * FROM ${ENTITY} WHERE id=?`;
         executeQuery(sql, [req.params.id], async (err, results) => {
             if (err) return res.status(500).json(err);
             if (results.length == 0)

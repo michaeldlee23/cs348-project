@@ -87,9 +87,7 @@ module.exports = (app) => {
                 error: ERR_MESSAGE,
                 message: err.message,
             });
-        const sql = `SELECT *
-                     FROM ${ENTITY}
-                     WHERE id=?`;
+        const sql = `SELECT * FROM ${ENTITY} WHERE id=?`;
         executeQuery(sql, [req.params.id], async (err, results) => {
             if (err) return res.status(500).json(err);
             if (results.length == 0)
