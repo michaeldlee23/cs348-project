@@ -1,9 +1,11 @@
 'use strict';
 
 const postOrganizationSchema = require('./postOrganization');
-const putOrganizationSchema = require('./putOrganization');
+const putOrganizationDetailsSchema = require('./putOrganizationDetails');
+const putOrganizationBudgetSchema = require('./putOrganizationBudget');
 
 module.exports = {
     postOrganizationSchema,
-    putOrganizationSchema,
+    putOrganizationDetailsSchema,
+    putOrganizationBudgetSchema,
 }

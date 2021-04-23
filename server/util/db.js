@@ -35,7 +35,7 @@ const executeQuery = async (query, vars, callback) => {
     })
 }
 
-const executeTransaction = async (queries, vars, callback) => {
+const executeTransaction = async (isolation, queries, vars, callback) => {
     const UNEXPECTED_ERROR = 'Internal Service Error'
     await pool.getConnection(async (err, connection) => {
         if (err) {
@@ -44,7 +44,7 @@ const executeTransaction = async (queries, vars, callback) => {
                 message: err.message,
             });
         }
-        await connection.query('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
+        await connection.query('SET TRANSACTION ISOLATION LEVEL ?', isolation);
         await connection.beginTransaction(async (err) => {
             if (err) {
                 connection.rollback(() => { connection.release(); });

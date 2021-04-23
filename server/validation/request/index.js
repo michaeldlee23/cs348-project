@@ -8,6 +8,7 @@ const admins = require('./admin');
 const courses = require('./courses');
 const organizations = require('./organizations');
 const postAuthSchema = require('./postAuth');
+const departments = require('./departments')
 
 module.exports = {
     admin,
@@ -18,4 +19,5 @@ module.exports = {
     courses,
     organizations,
     postAuthSchema,
+    departments,
 };

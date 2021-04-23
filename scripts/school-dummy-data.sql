@@ -5,15 +5,17 @@ INSERT INTO courses (code, name) VALUES
     ('CS390-NIP', 'Neural Image Processing')
 ;
 
-INSERT INTO departments (name) VALUES
-    ('Computer Science'),
-    ('Mathematics'),
-    ('Statistics')
+INSERT INTO departments (name,budget) VALUES
+    ('Computer Science',500000),
+    ('Mathematics',20000),
+    ('Statistics',10000),
+    ('Athletics', 1000000),
+    ('Student Services', 75000)
 ;
 
-INSERT INTO organizations (name, type, budget) VALUES
-    ('Underwater Basket Weaving', 'Athletic', 999999),
-    ('Eta Sigma Pi', 'Fraternity', 31415),
-    ('Alcoholics Anonymous', 'Social', 0.78)
+INSERT INTO organizations (name, type, departmentID) VALUES
+    ('Underwater Basket Weaving', 'Athletic', 10003),
+    ('Eta Sigma Pi', 'Fraternity', 10004),
+    ('Alcoholics Anonymous', 'Social', 10004)
 ;
 
