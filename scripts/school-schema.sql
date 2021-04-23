@@ -24,7 +24,8 @@ CREATE TABLE admin (
     salary float DEFAULT 0 CHECK (salary >= 0),
     phone char(12) NOT NULL,
     scope varchar(100),
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    UNIQUE KEY uniqueEmail (email)
 );
 ALTER TABLE admin AUTO_INCREMENT=10000;
 
@@ -42,7 +43,8 @@ CREATE TABLE students (
     advisorID int(16) NOT NULL,
     scope varchar(100),
     PRIMARY KEY (id),
-    FOREIGN KEY (advisorID) REFERENCES advisors (id)
+    FOREIGN KEY (advisorID) REFERENCES advisors (id),
+    UNIQUE KEY uniqueEmail (email)
 );
 -- Set initial PK value
 ALTER TABLE students AUTO_INCREMENT=10000;
@@ -60,7 +62,8 @@ CREATE TABLE teachers (
     scope varchar(100),
     departmentID int(16),
     PRIMARY KEY (id),
-    FOREIGN KEY (departmentID) REFERENCES departments (id)
+    FOREIGN KEY (departmentID) REFERENCES departments (id),
+    UNIQUE KEY uniqueEmail (email)
 );
 ALTER TABLE teachers AUTO_INCREMENT=10000;
 
@@ -75,7 +78,8 @@ CREATE TABLE advisors (
     salary float DEFAULT 0 CHECK (salary >= 0),
     phone char(12) NOT NULL,
     scope varchar(100),
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    UNIQUE KEY uniqueEmail (email)
 );
 ALTER TABLE advisors AUTO_INCREMENT=10000;
 

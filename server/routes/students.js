@@ -3,18 +3,16 @@
 const bcrypt = require('bcryptjs');
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
-const { findUserByEmail, executeQuery } = require('../util/db');
+const { executeQuery } = require('../util/db');
 const { generateAccessToken, authenticateToken, isStudent, isAdmin } = require('../util/authenticate');
 
 const ENDPOINT = '/students';
 const ENTITY = 'students';
 
 module.exports = (app) => {
-
     app.get(ENDPOINT + '/register', async (req,res) => {
         return res.render('registerStudents.ejs');
     });
-
 
     app.post(ENDPOINT + '/register', async (req, res) => {
         const ERR_MESSAGE = 'Failed to add student';
@@ -33,31 +31,17 @@ module.exports = (app) => {
         // Add auth scope
         payload.scope = 'STUDENT';
 
-        const insertSQL = `INSERT INTO ${ENTITY}(${Object.keys(payload).toString()}) VALUES (?)`;
-
-        findUserByEmail(payload.email, ENTITY, (err, results) => {
+        const sql = `INSERT INTO ${ENTITY}(${Object.keys(payload).toString()}) VALUES (?)`;
+        executeQuery(sql, [Object.values(payload)], (err) => {
             if (err) return res.status(500).json(err);
-            else {
-                if (results) {
-                    return res.status(400).json({
-                        error: ERR_MESSAGE,
-                        message: 'Email already associated with user',
-                    });
-                }
-                executeQuery(insertSQL, [Object.values(payload)], (err) => {
-                    if (err) return res.status(500).json(err);
-                    else {
-                        const token = generateAccessToken({
-                            email: payload.email,
-                            scope: payload.scope,
-                        });
-                        return res.status(200).json({
-                            message: SUC_MESSAGE,
-                            jwt: token
-                        });
-                    }
-                })
-            }
+            const token = generateAccessToken({
+                email: payload.email,
+                scope: payload.scope,
+            });
+            return res.status(200).json({
+                message: SUC_MESSAGE,
+                jwt: token,
+            });
         });
     });
 
