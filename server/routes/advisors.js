@@ -10,6 +10,10 @@ const ENDPOINT = '/advisors';
 const ENTITY = 'advisors';
 
 module.exports = (app) => {
+    app.get(ENDPOINT + '/register', (req, res) => {
+        return res.render('registerAdvisors.ejs');
+    });
+
     app.post(ENDPOINT + '/register', async (req, res) => {
         const ERR_MESSAGE = 'Failed to add advisor';
         const SUC_MESSAGE = 'Successfully added advisor';
