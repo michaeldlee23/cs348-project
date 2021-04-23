@@ -10,17 +10,27 @@ const ENDPOINT = '/teachers';
 const ENTITY = 'teachers';
 
 module.exports = (app) => {
+    app.get(ENDPOINT + '/register', (req, res) => {
+        const sql = `SELECT id, name from departments`;
+        executeQuery(sql, (err, results) => {
+            if (err) return res.status(500).json(err);
+            const departments = JSON.parse(JSON.stringify(results));
+            return res.render('registerTeachers.ejs', { departments });
+        });
+    });
+
     app.post(ENDPOINT + '/register', async (req, res) => {
         const ERR_MESSAGE = 'Failed to add teacher';
         const SUC_MESSAGE = 'Successfully added teacher';
         const payload = req.body;
         const err = validation.request.teachers.postTeacherSchema.validate(payload).error;
-        if (err)
+        if (err) {
+            console.log(err);
             return res.status(400).json({
                 error: ERR_MESSAGE,
                 message: err.message,
             });
-
+        }
         const salt = await bcrypt.genSalt(10);
         payload.password = await bcrypt.hash(payload.password, salt);
         // Add auth scope
