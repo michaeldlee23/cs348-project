@@ -2,6 +2,8 @@
 
 const express = require('express');
 const app = express();
+
+// eslint-disable-next-line
 app.set('views', __dirname + '/views');
 app.engine('html', require('ejs').renderFile);
 app.use(express.json());
