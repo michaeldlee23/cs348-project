@@ -22,12 +22,6 @@
     </style>
 </head>
 
-<% if (departments) { %>
-    <h1><%= departments[0].id%> </h1>
-<% } else { %>
-    <h1>Boohiss no myVar!</h1>
-<% } %>
-
 <body>
 <h2>Add Teacher</h2>
 
@@ -79,11 +73,11 @@
                 contentType: 'application/json',
                 data: JSON.stringify(payload), 
                 success: function(data, textStatus, jQxhr) {
-                    /* idk. display some kinda message? */
+                    alert(data.message);
                 },
                 error: function(jqXhr, textStatus, errorThrown){
                     console.log(errorThrown);
-                    console.log(payload)
+                    console.log(payload);
                 }
             });
             e.preventDefault();

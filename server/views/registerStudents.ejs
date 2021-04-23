@@ -69,7 +69,7 @@
             contentType: 'application/json',
             data: JSON.stringify(Object.fromEntries((data.entries()))), 
             success: function( data, textStatus, jQxhr ){
-                /* idk. display some kinda message? */
+                alert(data.message);
             },
             error: function( jqXhr, textStatus, errorThrown ){
                 console.log( errorThrown );
@@ -82,58 +82,6 @@
         $('#registerStud').submit( processForm );
     })(jQuery);
  </script>
-  
-  <!-- 
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-
-      const renderPost = (body, post) => {
-        const section = document.createElement('section');
-        const domString = `
-          <p>
-            <strong>Name: </strong>
-          </p>
-          <p>
-            <strong>First: </strong>${post.students.first}
-            <strong>Middle: </strong>${post.students.middle}
-            <strong>Last: </strong>${post.students.last}
-          </p>
-            <strong>Birthday: </strong>${post.students.birthday}
-          <p>
-            <strong>Year </strong>${post.students.year}
-          </p>
-        `;
-        section.innerHTML = domString;
-        body.appendChild(section);
-      };
-
-      const promisePosts = fetch("/postStudents")
-        .then((response) => response.json());
-
-      const promiseStudents = promisePosts
-        .then((posts) => {
-          return Promise.all(
-            posts.map(
-              (post) => fetch(`/students/${post.id}`)
-              .then((r) => r.json())
-            )
-          );
-      });
-
-      const body = document.body;
-      Promise.all([promisePosts, promiseStudents])
-        .then(([posts, students]) => {
-          students.forEach((students, index) => {
-            if (posts[index]) {
-              const aggregatedPost = {...posts[index], students};
-              renderPost(body, aggregatedPost);
-            }
-          })
-        })
-        .catch((e) => console.error(e));
-
-    });
-  </script> -->
 </body>
 
 </html>
