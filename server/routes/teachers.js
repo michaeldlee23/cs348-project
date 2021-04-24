@@ -15,7 +15,7 @@ module.exports = (app) => {
         executeQuery(sql, (err, results) => {
             if (err) return res.status(500).json(err);
             const departments = JSON.parse(JSON.stringify(results));
-            return res.render('registerTeachers.ejs', { departments });
+            return res.render('teachers/registerTeachers.ejs', { departments });
         });
     });
 

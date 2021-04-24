@@ -11,7 +11,7 @@ const ENTITY = 'admin';
 
 module.exports = (app) => {
     app.get(ENDPOINT + '/register', (req, res) => {
-        return res.render('registerAdmin.ejs');
+        return res.render('admin/registerAdmin.ejs');
     });
 
     app.post(ENDPOINT + '/register', async (req, res) => {

@@ -11,7 +11,7 @@ const ENTITY = 'advisors';
 
 module.exports = (app) => {
     app.get(ENDPOINT + '/register', (req, res) => {
-        return res.render('registerAdvisors.ejs');
+        return res.render('advisors/registerAdvisors.ejs');
     });
 
     app.post(ENDPOINT + '/register', async (req, res) => {
