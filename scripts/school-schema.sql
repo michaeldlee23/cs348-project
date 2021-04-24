@@ -16,7 +16,6 @@ CREATE TABLE admin (
     id int(16) NOT NULL AUTO_INCREMENT,
     email varchar(100) NOT NULL,
     password varchar(255) NOT NULL,
-    role varchar(100) NOT NULL,
     last varchar(50) NOT NULL,
     first varchar(50) NOT NULL,
     middle varchar(1),

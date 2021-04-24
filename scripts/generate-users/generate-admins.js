@@ -14,7 +14,7 @@ const chance = require('chance')();
 const bcrypt = require('bcryptjs');
 
 const ENTITY = 'admin';
-const SCHEMA = '(email, password, last, first, middle, birthdate, phone, salary, role, scope)';
+const SCHEMA = '(email, password, last, first, middle, birthdate, phone, salary, scope)';
 const SCOPE = 'ADMIN';
 const OUTPUT = './generate-admins.sql';
 const PASSWORD_MAP = './password-map-admins.txt';
@@ -38,7 +38,6 @@ const generateRecord = async () => {
         birthdate: chance.date().toISOString().replace(/T.+/, ''),
         phone: phone,
         salary: chance.integer({ min: 50000, max: 999999 }),
-        role: chance.word(),
         scope: SCOPE,
     };
 
