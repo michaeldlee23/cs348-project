@@ -10,8 +10,12 @@ const ENDPOINT = '/students';
 const ENTITY = 'students';
 
 module.exports = (app) => {
-    app.get(ENDPOINT + '/register', async (req,res) => {
+    app.get(ENDPOINT + '/register', (req,res) => {
         return res.render('students/registerStudents.ejs');
+    });
+
+    app.get(ENDPOINT + '/login', (req, res) => {
+        return res.render('students/loginStudents.ejs');
     });
 
     app.post(ENDPOINT + '/register', async (req, res) => {
