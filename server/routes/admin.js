@@ -1,7 +1,6 @@
 'use strict';
 
 const bcrypt = require('bcryptjs');
-const pool = require('../connection');
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
 const { executeQuery } = require('../util/db');
@@ -11,75 +10,8 @@ const ENDPOINT = '/admin';
 const ENTITY = 'admin';
 
 module.exports = (app) => {
-    app.post(ENDPOINT + '/login', async (req, res) => {
-        const ERR_MESSAGE = 'Failed to authenticate admin';
-        const SUC_MESSAGE = 'Successfully authenticated admin';
-        const payload = req.body;
-        const err = validation.request.postAuthSchema.validate(payload).error;
-        if (err) {
-            return res.status(400).json({
-                message: ERR_MESSAGE,
-                data: err.message
-            });
-        }
-        const sql = `SELECT * FROM ${ENTITY} WHERE email='${payload.email}'`;
-        pool.query(sql, async (err, results) => {
-            if (err) {
-                return res.status(500).json({
-                    message: ERR_MESSAGE,
-                    data: err.message
-                });
-            }
-            if (results.length == 0) {
-                return res.status(401).send('No account associated with email');
-            }
-            const user = results[0];
-
-            const validPass = await bcrypt.compare(payload.password, user.password);
-            if (!validPass) {
-                return res.status(401).send('Incorrect password');
-            }
-            const token = generateAccessToken({
-                email: user.email,
-                scope: user.scope,
-            });
-            return res.status(200).json({
-                message: SUC_MESSAGE,
-                jwt: token,
-            });
-        });
-    });
-
-    app.get(ENDPOINT, authenticateToken, isAdmin, (req, res) => {
-        const ERR_MESSAGE = 'Failed to retrieve admin';
-        const sql = `SELECT id, email, last, first, middle FROM ${ENTITY}`;
-        pool.query(sql, (err, results) => {
-            if (err) {
-                return res.status(500).json({
-                    message: ERR_MESSAGE,
-                    data: err.message
-                });
-            }
-            return res.status(200).json(results);
-        });
-    });
-
-    app.get(ENDPOINT + '/:id', authenticateToken, isAdmin, (req, res) => {
-        // TODO: Make this secure so admins can't see each other's info.
-        //       Might need to make this a POST and take password as payload.
-        const ERR_MESSAGE = 'Failed to retrieve admin information';
-        const sql = `SELECT id, email, last, first, middle, role, salary
-                     FROM ${ENTITY}
-                     WHERE id=${req.params.id}`;
-        pool.query(sql, (err, results) => {
-            if (err) {
-                return res.status(500).json({
-                    message: ERR_MESSAGE,
-                    data: err.message,
-                });
-            }
-            return res.status(200).json(results[0]);
-        })
+    app.get(ENDPOINT + '/register', (req, res) => {
+        return res.render('registerAdmin.ejs');
     });
 
     app.post(ENDPOINT + '/register', async (req, res) => {
@@ -100,21 +32,82 @@ module.exports = (app) => {
         payload.scope = 'ADMIN';
 
         const sql = `INSERT INTO ${ENTITY}(${Object.keys(payload).toString()}) VALUES (?)`;
-        pool.query(sql, [Object.values(payload)], async (err) => {
-            if (err) {
-                return res.status(500).json({
-                    message: ERR_MESSAGE,
-                    data: err.message
-                });
-            }
+        executeQuery(sql, [Object.values(payload)], async (err) => {
+            if (err) return res.status(500).json(err);
             const token = generateAccessToken({
                 email: payload.email,
                 scope: payload.scope,
             });
             return res.status(200).json({
                 message: SUC_MESSAGE,
-                jwt: token
+                jwt: token,
             });
+        });
+    });
+
+    app.post(ENDPOINT + '/login', async (req, res) => {
+        const ERR_MESSAGE = 'Failed to authenticate admin';
+        const SUC_MESSAGE = 'Successfully authenticated admin';
+        const payload = req.body;
+        const err = validation.request.postAuthSchema.validate(payload).error;
+        if (err) {
+            return res.status(400).json({
+                message: ERR_MESSAGE,
+                data: err.message
+            });
+        }
+        const sql = `SELECT * FROM ${ENTITY} WHERE email='${payload.email}'`;
+        executeQuery(sql, async (err, results) => {
+            if (err) return res.status(500).json(err);
+            if (results.length == 0) return res.status(401).send('No account associated with email');
+            const user = results[0];
+
+            const validPass = await bcrypt.compare(payload.password, user.password);
+            if (!validPass) return res.status(401).send('Incorrect password');
+            const token = generateAccessToken({
+                email: user.email,
+                scope: user.scope,
+            });
+            return res.status(200).json({
+                message: SUC_MESSAGE,
+                jwt: token,
+            });
+        });
+    });
+
+    app.get(ENDPOINT, authenticateToken, isAdmin, (req, res) => {
+        const sql = `SELECT id, email, last, first, middle FROM ${ENTITY}`;
+        executeQuery(sql, (err, results) => {
+            if (err) return res.status(500).json(err);
+            return res.status(200).json(results);
+        });
+    });
+
+    app.post(ENDPOINT + '/:id', authenticateToken, isAdmin, (req, res) => {
+        const ERR_MESSAGE = 'Failed ot retrieve admin information';
+        const payload = req.body;
+        const err = validation.request.admin.getAdminSchema.validate(payload).error;
+        if (err)
+            return res.status(400).json({
+                error: ERR_MESSAGE,
+                message: err.message,
+            });
+        const sql = `SELECT * FROM ${ENTITY} WHERE id=?`;
+        executeQuery(sql, [req.params.id], async (err, results) => {
+            if (err) return res.status(500).json(err);
+            if (results.length == 0)
+                return res.status(403).json({
+                    error: ERR_MESSAGE,
+                    message: 'Access denied',
+                });
+            const validPass = await bcrypt.compare(payload.password, results[0].password)
+            if (!validPass)
+                return res.status(403).json({
+                    error: ERR_MESSAGE,
+                    message: 'Access denied',
+                });
+            delete results[0].password;
+            return res.status(200).json(results[0]);
         });
     });
 
@@ -123,30 +116,19 @@ module.exports = (app) => {
         const SUC_MESSAGE = 'Successfully updated admin record';
         const payload = req.body;
         const err = validation.request.admins.putAdminSchema.validate(payload).error;
-        if (err) {
-            return res.status(400).json({
-                message: ERR_MESSAGE,
-                data: err.message
-            });
-        }
+        if (err) return res.status(500).json(err);
         const values = jsonConverter.payloadToUpdate(payload);
         const sql = `UPDATE ${ENTITY} SET ${values} WHERE id='${payload.id}'`;
-        pool.query(sql, (err, results) => {
-            if (results.affectedRows == 0) {
+        executeQuery(sql, (err, results) => {
+            if (err) return res.status(500).json(err);
+            if (results.affectedRows == 0)
                 return res.status(404).json({
-                    message: ERR_MESSAGE,
-                    data: 'No account associated with id'
+                    error: ERR_MESSAGE,
+                    message: 'No account associated with id'
                 });
-            }
-            if (err) {
-                return res.status(500).json({
-                    message: ERR_MESSAGE,
-                    data: err.message
-                });
-            }
             return res.status(200).json({
                 message: SUC_MESSAGE,
-                data: payload
+                data: payload,
             });
         });
     });
