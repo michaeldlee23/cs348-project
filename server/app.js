@@ -3,10 +3,14 @@
 const express = require('express');
 const app = express();
 
+const cookieParser = require('cookie-parser');
+
 // eslint-disable-next-line
 app.set('views', __dirname + '/views');
 app.engine('html', require('ejs').renderFile);
 app.use(express.json());
+
+app.use(cookieParser());
 
 require('./routes/students')(app);
 

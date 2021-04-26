@@ -6,6 +6,19 @@ const generateAccessToken = (payload) => {
     return token;
 }
 
+const verifyToken = async (req, res, next) => {
+    const token = req.cookies.token || '';
+    try {
+      const decrypt = await jwt.verify(token, config.secret);
+      req.user = decrypt
+      next();
+    } catch (err) {
+      return res.status(500).json(err.toString());
+    }
+  };
+
+
+
 const authenticateToken = async (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
@@ -73,4 +86,5 @@ module.exports = {
     isTeacher,
     isAdvisor,
     isAdmin,
+    verifyToken,
 };
