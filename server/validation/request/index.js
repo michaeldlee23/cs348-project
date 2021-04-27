@@ -1,29 +1,23 @@
 'use strict';
 
-const postStudentSchema = require('./postStudent');
-const putStudentSchema = require('./putStudent');
-const postCourseSchema = require('./postCourse');
-const putCourseSchema = require('./putCourse');
-const postStudentCourseSchema = require('./postStudentCourse');
-const putStudentCourseSchema = require('./putStudentCourse');
+const admin = require('./admin');
+const students = require('./students');
+const teachers = require('./teachers');
+const advisors = require('./advisors');
+const admins = require('./admin');
+const courses = require('./courses');
+const organizations = require('./organizations');
 const postAuthSchema = require('./postAuth');
-
-const postStudentOrganizationSchema = require('./postStudentOrganization');
-const putStudentOrganizationSchema = require('./putStudentOrganization');
-const postTeacherSchema = require('./postTeacher');
-const putTeacherSchema = require('./putTeacher');
-const postTeacherCourseSchema = require('./postTeacherCourse');
+const departments = require('./departments')
 
 module.exports = {
-    postStudentSchema,
-    putStudentSchema,
-    postCourseSchema,
-    putCourseSchema,
-    postStudentCourseSchema,
-    putStudentCourseSchema,
+    admin,
+    students,
+    teachers,
+    advisors,
+    admins,
+    courses,
+    organizations,
     postAuthSchema,
-
-    postTeacherSchema,
-    putTeacherSchema,
+    departments,
 };
-

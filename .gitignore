@@ -1,3 +1,5 @@
 node_modules/
 .env
-
+note
+scripts/generate-users/*.sql
+scripts/generate-users/*.txt
