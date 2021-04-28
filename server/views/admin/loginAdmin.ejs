@@ -23,9 +23,9 @@
 </head>
 
 <body>
-    <h2>Student Login</h2>
+    <h2>Admin Login</h2>
 
-<form id="loginStudents" action="/students/login" method="POST" >
+<form id="loginAdmin" action="/admin/login" method="POST" >
 
     <label for="email">email:</label>
     <input type="text" id="email" name="email"><br><br>
@@ -43,7 +43,7 @@
             const data = new FormData(e.target);
             payload = Object.fromEntries(data.entries())
             $.ajax({
-                url: '/students/login',
+                url: '/admin/login',
                 dataType: 'json',
                 type: 'post',
                 contentType: 'application/json',
@@ -51,17 +51,17 @@
                 success: function(data, textStatus, jQxhr){
                     alert(data.message);
                     // TODO: something something cookies with data.token
-                    window.location.href="/students/"+data.id
-                  
+              //     
                 },
                 error: function(jqXhr, textStatus, errorThrown){
+                    alert("Login Failed")
                     console.log(errorThrown);
                     console.log(payload);
                 }
             });
             e.preventDefault();
         }
-        $('#loginStudents').submit( processForm );
+        $('#loginAdmin').submit( processForm );
     })(jQuery);
 </script>
 </body>
