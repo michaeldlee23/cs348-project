@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Show student</title>
+    <title>Show teacher</title>
     <style type="text/css">
         section {
             border-bottom: 1px solid grey;
@@ -23,12 +23,12 @@
 </head>
 
 <body>
-<h2>Student InfoPage</h2>
+<h2>Teacher InfoPage</h2>
 
 
 
 
-<form id="studentInfo" action="/students/<%=id%>/info" method="GET" >
+<form id="teacherInfo" action="/teachers/<%=id%>/info" method="GET" >
 
     <% var first = JSON.stringify(info1[0].first) %>
     <% var middle = JSON.stringify(info1[0].middle) %>
@@ -41,38 +41,14 @@
     <label for="name">name: <%=name1%>  </label><br><br>
     <label for="email">email: <%=JSON.stringify(info1[0].email)%>  </label><br><br>
     <label for="birthdate">birthdate: <%=JSON.stringify(info1[0].birthdate)%>  </label><br><br>
-    <label for="year">year: <%=JSON.stringify(info1[0].year)%>  </label><br><br>
+    <label for="salary">salary: <%=JSON.stringify(info1[0].salary)%>  </label><br><br>
     <label for="phone">phone: <%=JSON.stringify(info1[0].phone)%>  </label><br><br>
-    <label for="advisorID">advisorID: <%=JSON.stringify(info1[0].advisorID)%>  </label><br><br>
-    <label for="gpa">GPA: <%=JSON.stringify(info1[0].gpa)%>  </label><br><br>
+    <label for="departmentID">departmentID: <%=JSON.stringify(info1[0].departmentID)%>  </label><br><br>
 
 </form>
 
-<table border="1" style="margin-bottom:1cm">
-    <tr>
-        <th>Course Name</th>
-        <th>Grade</th>
-    </tr>
-    
-    
-    <% if(grade1.length!=0){ %>
-        <% for(let i = 0; i < grade1.length; i++) { %>
-            <tr>
-                <td><%=JSON.stringify(grade1[0].name) %></td>
-                <td><%=JSON.stringify(grade1[0].grade) %></td>
-            </tr>
-        <% } %>
-    
-    <% } else{ %>
-        <tr>
-            <td colspan="7">No Data Found</td>
-        </tr>
-    <% } %>
-</table>
 
-
-
-<form id="backbutton" action="/students/login" method="GET" >
+<form id="backbutton" action="/teachers/login" method="GET" >
     <button for="back">back to login </button><br><br>
 </form>
 
