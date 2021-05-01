@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
 const { executeQuery } = require('../util/db');
-const { generateAccessToken, authenticateToken, isTeacher, isAdmin } = require('../util/authenticate');
+const { generateAccessToken, authenticateToken,verifyToken, isTeacher, isAdmin } = require('../util/authenticate');
 
 const ENDPOINT = '/teachers';
 const ENTITY = 'teachers';
@@ -18,6 +18,23 @@ module.exports = (app) => {
             return res.render('teachers/registerTeachers.ejs', { departments });
         });
     });
+
+    app.get(ENDPOINT + '/login', (req, res) => {
+        return res.render('teachers/loginTeachers.ejs');
+    });
+    app.get(ENDPOINT + '/:id', (req, res) => {
+        return res.render('teachers/mainTeacherpg.ejs',{id:req.params.id});
+    });
+    app.get(ENDPOINT + '/:id/info', (req, res) => {
+        const infoSQL = `SELECT * FROM ${ENTITY} WHERE id=?`;
+        executeQuery(infoSQL, [req.params.id], (err, inform) => {
+            if (err)  return res.status(500).json(err); 
+            const info = inform;
+            delete info[0].password;
+            return res.render('teachers/teacherInfo.ejs',{id:req.params.id,info1:info});
+        });
+    });
+
 
     app.post(ENDPOINT + '/register', async (req, res) => {
         const ERR_MESSAGE = 'Failed to add teacher';
@@ -46,6 +63,7 @@ module.exports = (app) => {
             return res.status(200).json({
                 message: SUC_MESSAGE,
                 jwt: token,
+                
             });
         });
     });
@@ -72,14 +90,18 @@ module.exports = (app) => {
                 email: user.email,
                 scope: user.scope,
             });
+            res.cookie('token',token,{
+                httpOnly:true,
+            });
             return res.status(200).json({
                 message: SUC_MESSAGE,
                 jwt: token,
+                id:user.id,
             });
         });
     });
 
-    app.get(ENDPOINT, authenticateToken, isTeacher, (req, res) => {
+    app.get(ENDPOINT, verifyToken, isTeacher, (req, res) => {
         const sql = `SELECT id, email, last, first, middle FROM ${ENTITY}`;
         executeQuery(sql, (err, results) => {
             if (err) return res.status(500).json(err);
@@ -87,7 +109,7 @@ module.exports = (app) => {
         });
     });
 
-    app.post(ENDPOINT + '/:id', authenticateToken, isTeacher, async (req, res) => {
+    app.post(ENDPOINT + '/:id', verifyToken, isTeacher, async (req, res) => {
         const ERR_MESSAGE = 'Failed to retrieve teacher information';
         const payload = req.body;
         const err = validation.request.teachers.getTeacherSchema.validate(payload).error;
@@ -115,7 +137,7 @@ module.exports = (app) => {
         });
     });
 
-    app.put(ENDPOINT, authenticateToken, isTeacher, (req, res) => {
+    app.put(ENDPOINT, verifyToken, isTeacher, (req, res) => {
         const ERR_MESSAGE = 'Failed to update teacher record';
         const SUC_MESSAGE = 'Successfully updated teacher record';
         const payload = req.body;
@@ -143,7 +165,7 @@ module.exports = (app) => {
         });
     });
 
-    app.delete(ENDPOINT + '/:id', authenticateToken, isAdmin, async (req, res) => {
+    app.delete(ENDPOINT + '/:id', verifyToken, isAdmin, async (req, res) => {
         const SUC_MESSAGE = 'Successfully deleted teacher record';
         const ERR_MESSAGE = 'Failed to delete teacher record';
         const teacherID = req.params.id;

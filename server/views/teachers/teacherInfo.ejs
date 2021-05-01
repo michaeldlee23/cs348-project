@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Show teacher</title>
+    <style type="text/css">
+        section {
+            border-bottom: 1px solid grey;
+            padding-bottom: 10px;
+        }
+
+        section p:first-of-type>strong {
+            color: rgb(2.8%, 11.1%, 47.6%);
+        }
+
+        section p:nth-of-type(2)>strong {
+            color: rgb(29.1%, 30.8%, 38.2%);
+        }
+    </style>
+</head>
+
+<body>
+<h2>Teacher InfoPage</h2>
+
+
+
+
+<form id="teacherInfo" action="/teachers/<%=id%>/info" method="GET" >
+
+    <% var first = JSON.stringify(info1[0].first) %>
+    <% var middle = JSON.stringify(info1[0].middle) %>
+    <% var last =JSON.stringify(info1[0].last) %>
+    <% first = first.substr(0,first.length-1) %>
+    <% middle = middle.substr(1,middle.length-2) %>
+    <% last = last.substr(1,last.length-1) %>
+    <% name1 = first + " " + middle + " " + last%>
+
+    <label for="name">name: <%=name1%>  </label><br><br>
+    <label for="email">email: <%=JSON.stringify(info1[0].email)%>  </label><br><br>
+    <label for="birthdate">birthdate: <%=JSON.stringify(info1[0].birthdate)%>  </label><br><br>
+    <label for="salary">salary: <%=JSON.stringify(info1[0].salary)%>  </label><br><br>
+    <label for="phone">phone: <%=JSON.stringify(info1[0].phone)%>  </label><br><br>
+    <label for="departmentID">departmentID: <%=JSON.stringify(info1[0].departmentID)%>  </label><br><br>
+
+</form>
+
+
+<form id="backbutton" action="/teachers/login" method="GET" >
+    <button for="back">back to login </button><br><br>
+</form>
+
+
+<br />
+
+
+</body>
+</html>

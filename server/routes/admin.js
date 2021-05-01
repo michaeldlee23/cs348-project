@@ -13,6 +13,9 @@ module.exports = (app) => {
     app.get(ENDPOINT + '/register', (req, res) => {
         return res.render('admin/registerAdmin.ejs');
     });
+    app.get(ENDPOINT + '/login', (req, res) => {
+        return res.render('admin/loginAdmin.ejs');
+    });
 
     app.post(ENDPOINT + '/register', async (req, res) => {
         const ERR_MESSAGE = 'Failed to add admin';

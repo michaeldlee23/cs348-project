@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Student login</title>
+  <title>Teacher login</title>
   <style type="text/css">
     section {
       border-bottom: 1px solid grey;
@@ -23,9 +23,9 @@
 </head>
 
 <body>
-    <h2>Student Login</h2>
+    <h2>Teacher Login</h2>
 
-<form id="loginStudents" action="/students/login" method="POST" >
+<form id="loginTeachers" action="/teachers/login" method="POST" >
 
     <label for="email">email:</label>
     <input type="text" id="email" name="email"><br><br>
@@ -43,7 +43,7 @@
             const data = new FormData(e.target);
             payload = Object.fromEntries(data.entries())
             $.ajax({
-                url: '/students/login',
+                url: '/teachers/login',
                 dataType: 'json',
                 type: 'post',
                 contentType: 'application/json',
@@ -51,7 +51,7 @@
                 success: function(data, textStatus, jQxhr){
                     alert(data.message);
                     // TODO: something something cookies with data.token
-                    window.location.href="/students/"+data.id
+                    window.location.href="/teachers/"+data.id
                   
                 },
                 error: function(jqXhr, textStatus, errorThrown){
@@ -62,7 +62,7 @@
             });
             e.preventDefault();
         }
-        $('#loginStudents').submit( processForm );
+        $('#loginTeachers').submit( processForm );
     })(jQuery);
 </script>
 </body>
