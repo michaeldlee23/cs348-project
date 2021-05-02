@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Add a course</title>
+    <style type="text/css">
+        section {
+            border-bottom: 1px solid grey;
+            padding-bottom: 10px;
+        }
+
+        section p:first-of-type>strong {
+            color: rgb(2.8%, 11.1%, 47.6%);
+        }
+
+        section p:nth-of-type(2)>strong {
+            color: rgb(29.1%, 30.8%, 38.2%);
+        }
+    </style>
+</head>
+
+<body>
+<h2>Add Department</h2>
+
+<form id="addDepartment" action="/departments/add" method="POST" >
+
+    <label for="name">name:</label>
+    <input type="text" id="name" name="name"><br><br>
+
+    <label for="budget">budget:</label>
+    <input type="number" id="budget" name="budget"><br><br>
+
+    <input type="submit" value="Submit">
+</form>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+    (function($){
+        function processForm( e ){
+            const data = new FormData(e.target);
+            payload = Object.fromEntries(data.entries())
+            if (!payload.middle) delete payload.middle
+            $.ajax({
+                url: '/departments/add',
+                dataType: 'json',
+                type: 'post',
+                contentType: 'application/json',
+                data: JSON.stringify(payload), 
+                success: function(data, textStatus, jQxhr) {
+                    alert(data.message);
+                },
+                error: function(jqXhr, textStatus, errorThrown){
+                    console.log(errorThrown);
+                    console.log(payload);
+                }
+            });
+            e.preventDefault();
+        }
+
+        $('#addDepartment').submit( processForm );
+    })(jQuery);
+</script>
+</body>
+
+</html>
