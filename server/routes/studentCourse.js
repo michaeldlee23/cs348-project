@@ -18,7 +18,7 @@ module.exports = (app) => {
     });
 
     app.post(ENDPOINT, authenticateToken, isAdvisor, async (req, res) => {
-        const ERR_MESSAGE = 'Failed to enrolled student in course';
+        const ERR_MESSAGE = 'Failed to enroll student in course';
         const SUC_MESSAGE = 'Successfully enrolled student in course';
         const payload = req.body;
         const err = validation.request.students.postStudentCourseSchema.validate(payload).error;

@@ -4,10 +4,11 @@ const bcrypt = require('bcryptjs');
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
 const { executeQuery } = require('../util/db');
-const { generateAccessToken, authenticateToken, isStudent, isAdmin } = require('../util/authenticate');
+const { generateAccessToken, authenticateToken, isStudent, isAdmin, verifyToken } = require('../util/authenticate');
 
 const ENDPOINT = '/students';
 const ENTITY = 'students';
+
 
 module.exports = (app) => {
     app.get(ENDPOINT + '/register', (req,res) => {
@@ -15,7 +16,31 @@ module.exports = (app) => {
     });
 
     app.get(ENDPOINT + '/login', (req, res) => {
-        return res.render('students/loginStudents.ejs');
+            return res.render('students/loginStudents.ejs');
+    });
+  
+    app.get(ENDPOINT + '/:id', (req, res) => {
+        return res.render('students/mainStudentpg.ejs',{id:req.params.id});
+    });
+
+
+    app.get(ENDPOINT + '/:id/info', (req, res) => {
+        const infoSQL = `SELECT * FROM ${ENTITY} WHERE id=?`;
+        const gradesSQL = `SELECT name, grade
+                           FROM students S
+                           INNER JOIN studentCourseRel SC ON S.id = SC.studentID
+                           INNER JOIN courses C ON SC.courseID = C.id
+                           WHERE S.id = ?`;
+
+        executeQuery(infoSQL, [req.params.id], (err, inform) => {
+            if (err)  return res.status(500).json(err); 
+            const info = inform;
+            delete info[0].password;
+            executeQuery(gradesSQL, [req.params.id], (err, grades) => {
+                if (err)  return res.status(500).json(err); 
+                return res.render('students/studentInfo.ejs',{id:req.params.id,info1:info,grade1:grades});              
+            });
+        });
     });
 
     app.post(ENDPOINT + '/register', async (req, res) => {
@@ -53,6 +78,7 @@ module.exports = (app) => {
         const ERR_MESSAGE = 'Failed to authenticate student';
         const SUC_MESSAGE = 'Successfully authenticated student';
         const payload = req.body;
+
         const err = validation.request.postAuthSchema.validate(payload).error;
         if (err) {
             return res.status(400).json({
@@ -78,15 +104,19 @@ module.exports = (app) => {
             const token = generateAccessToken({
                 email: user.email,
                 scope: user.scope,
+            });          
+            res.cookie('token',token,{
+                httpOnly:true,
             });
             return res.status(200).json({
                 message: SUC_MESSAGE,
                 jwt: token,
+                id:user.id,
             });
         })
     });
 
-    app.get(ENDPOINT, authenticateToken, isStudent, (req, res) => {
+    app.get(ENDPOINT, verifyToken, isStudent, (req, res) => {
         const sql = `SELECT id, email, last, first, middle, year FROM ${ENTITY}`;
         executeQuery(sql, (err, results) => {
             if (err) return res.status(500).json(err);
@@ -94,10 +124,11 @@ module.exports = (app) => {
         })
     });
 
-    app.post(ENDPOINT + '/:id', authenticateToken, isStudent, async (req, res) => {
+    app.post(ENDPOINT + '/:id', verifyToken, isStudent, async (req, res) => {
         const ERR_MESSAGE = 'Failed to retrieve student information';
         const payload = req.body;
         const err = validation.request.students.getStudentSchema.validate(payload).error;
+
         if (err)
             return res.status(400).json({
                 error: ERR_MESSAGE,
@@ -109,7 +140,7 @@ module.exports = (app) => {
                            INNER JOIN studentCourseRel SC ON S.id = SC.studentID
                            INNER JOIN courses C ON SC.courseID = C.id
                            WHERE S.id = ?`;
-
+           
         executeQuery(infoSQL, [req.params.id], async (err, info) => {
             if (err) return res.status(500).json(err);
             if (info.length == 0) {
@@ -120,6 +151,7 @@ module.exports = (app) => {
             }
             const validPass = await bcrypt.compare(payload.password, info[0].password)
             if (!validPass)
+                
                 return res.status(403).json({
                     error: ERR_MESSAGE,
                     message: 'Access denied',
@@ -130,14 +162,15 @@ module.exports = (app) => {
                     return res.status(500).json(err);
                 }
                 return res.status(200).json({
-                    info,
-                    grades,
+                    info1:info,
+                    grades1:grades,
                 });
+            
             })
         });
     });
 
-    app.put(ENDPOINT, authenticateToken, isStudent, (req, res) => {
+    app.put(ENDPOINT, verifyToken, isStudent, (req, res) => {
         const ERR_MESSAGE = 'Failed to update student record';
         const SUC_MESSAGE = 'Successfully updated student record';
         const payload = req.body;
@@ -165,7 +198,7 @@ module.exports = (app) => {
         })
     });
 
-    app.delete(ENDPOINT + '/:id', authenticateToken, isAdmin, async (req, res) => {
+    app.delete(ENDPOINT + '/:id', verifyToken, isAdmin, async (req, res) => {
         const SUC_MESSAGE = 'Successfully deleted student record';
         const ERR_MESSAGE = 'Failed to delete student record';
         const studentID = req.params.id;
