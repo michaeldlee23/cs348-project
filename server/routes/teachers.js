@@ -137,6 +137,34 @@ module.exports = (app) => {
         });
     });
 
+//#region TEMP put endpoint without auth
+app.put(ENDPOINT, (req, res) => {
+    const ERR_MESSAGE = 'Failed to update teacher record';
+    const SUC_MESSAGE = 'Successfully updated teacher record';
+    const payload = req.body;
+    const err = validation.request.teachers.putTeacherSchema.validate(payload).error;
+    if (err)
+        return res.status(400).json({
+            error: ERR_MESSAGE,
+            message: err.message,
+        });
+    const values = jsonConverter.payloadToUpdate(payload);
+    const sql = `UPDATE ${ENTITY} SET ${values} WHERE id=?`;
+    executeQuery(sql, [payload.id], (err, results) => {
+        if (err) return res.status(500).json(err);
+        if (results.affectedRows == 0)
+            return res.status(404).json({
+                error: ERR_MESSAGE,
+                message: 'No account associated with id',
+            });
+        return res.status(200).json({
+            message: SUC_MESSAGE,
+            data: payload,
+        });
+    });
+});
+//#endregion
+
     app.put(ENDPOINT, verifyToken, isTeacher, (req, res) => {
         const ERR_MESSAGE = 'Failed to update teacher record';
         const SUC_MESSAGE = 'Successfully updated teacher record';
