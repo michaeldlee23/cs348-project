@@ -17,6 +17,35 @@ module.exports = (app) => {
         });
     });
 
+    app.get(ENDPOINT + '/add', (req, res) => {
+        const sql = `SELECT * FROM departments`;
+        executeQuery(sql, (err, results) => {
+            if (err) return res.status(500).json(err);
+            return res.render('admin/addCourse.ejs', {userData: results});
+        });
+    });
+
+    app.post(ENDPOINT + '/add', async (req, res) => {
+        const ERR_MESSAGE = 'Failed to add course';
+        const SUC_MESSAGE = 'Successfully added course';
+        const payload = req.body;
+        const err = validation.request.courses.postCourseSchema.validate(payload).error;
+        if (err) {
+            return res.status(400).json({
+                message: ERR_MESSAGE,
+                data: err.message
+            });
+        }
+
+        const sql = `INSERT INTO ${ENTITY}(${Object.keys(payload).toString()}) VALUES (?)`;
+        executeQuery(sql, [Object.values(payload)], async (err) => {
+            if (err) return res.status(500).json(err);
+            return res.status(200).json({
+                message: SUC_MESSAGE,
+            });
+        });
+    });
+
     app.get(ENDPOINT + '/:id', authenticateToken, isTeacher, (req, res) => {
         const ERR_MESSAGE = 'Failed to retrieve course details';
         const courseID = req.params.id;

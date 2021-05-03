@@ -86,7 +86,9 @@ CREATE TABLE courses (
     id int(16) NOT NULL AUTO_INCREMENT,
     code varchar(15),
     name varchar(50),
-    PRIMARY KEY (id)
+    departmentID int(16) NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (departmentID) REFERENCES departments (id) ON DELETE CASCADE
 );
 ALTER TABLE courses AUTO_INCREMENT=10000;
 

@@ -1,16 +1,16 @@
-INSERT INTO courses (code, name) VALUES
-    ('CS348', 'Database and Information Systems'),
-    ('STAT512', 'Applied Regression Analysis'),
-    ('MA453', 'Abstract AIDs'),
-    ('CS390-NIP', 'Neural Image Processing')
-;
-
 INSERT INTO departments (name,budget) VALUES
     ('Computer Science',500000),
     ('Mathematics',20000),
     ('Statistics',10000),
     ('Athletics', 1000000),
     ('Student Services', 75000)
+;
+
+INSERT INTO courses (code, name, departmentID) VALUES
+    ('CS348', 'Database and Information Systems', 10000),
+    ('STAT512', 'Applied Regression Analysis', 10002),
+    ('MA453', 'Abstract AIDs', 10001),
+    ('CS390-NIP', 'Neural Image Processing', 10000)
 ;
 
 INSERT INTO organizations (name, type, departmentID) VALUES
