@@ -24,7 +24,7 @@ module.exports = (app) => {
     });
 
 
-    app.get(ENDPOINT + '/:id/info', (req, res) => {
+    app.get(ENDPOINT + '/:id/info', verifyToken, isStudent, (req, res) => {
         const infoSQL = `SELECT * FROM ${ENTITY} WHERE id=?`;
         const gradesSQL = `SELECT name, grade
                            FROM students S
@@ -34,6 +34,7 @@ module.exports = (app) => {
 
         executeQuery(infoSQL, [req.params.id], (err, inform) => {
             if (err)  return res.status(500).json(err); 
+            
             const info = inform;
             delete info[0].password;
             executeQuery(gradesSQL, [req.params.id], (err, grades) => {
@@ -102,12 +103,18 @@ module.exports = (app) => {
                     message: 'Incorrect username or password',
                 });
             const token = generateAccessToken({
+                id:user.id,
                 email: user.email,
                 scope: user.scope,
             });          
             res.cookie('token',token,{
                 httpOnly:true,
             });
+  /*
+            res.cookie('token',user.id,{
+                httpOnly:true
+            });
+            */
             return res.status(200).json({
                 message: SUC_MESSAGE,
                 jwt: token,
