@@ -30,16 +30,23 @@
 
 <form id="studentInfo" action="/students/<%=id%>/info" method="GET" >
 
-    <% var first = JSON.stringify(info1[0].first) %>
-    <% var middle = JSON.stringify(info1[0].middle) %>
-    <% var last =JSON.stringify(info1[0].last) %>
-    <% first = first.substr(0,first.length-1) %>
-    <% middle = middle.substr(1,middle.length-2) %>
-    <% last = last.substr(1,last.length-1) %>
-    <% name1 = first + " " + middle + " " + last%>
+    <% var first1 = JSON.stringify(info1[0].first) %>
+    <% var middle1 = JSON.stringify(info1[0].middle) %>
+    <% if(middle1=="null"){  %>
+        <%   middle1="" %>
+    <% } %>
+
+
+    <% var last1 =JSON.stringify(info1[0].last) %>
+    <% first1 = first1.substr(0,first1.length-1) %>
+    <% middle1 = middle1.substr(1,middle1.length-2) %>
+    <% last1 = last1.substr(1,last1.length-1) %>
+    <% name1 = first1 + " " + middle1 + " " + last1%>
+    <% email1 = JSON.stringify(info1[0].email)%>
+
 
     <label for="name">name: <%=name1%>  </label><br><br>
-    <label for="email">email: <%=JSON.stringify(info1[0].email)%>  </label><br><br>
+    <label for="email">email: <%=email1%>  </label><br><br>
     <label for="birthdate">birthdate: <%=JSON.stringify(info1[0].birthdate)%>  </label><br><br>
     <label for="year">year: <%=JSON.stringify(info1[0].year)%>  </label><br><br>
     <label for="phone">phone: <%=JSON.stringify(info1[0].phone)%>  </label><br><br>
@@ -70,7 +77,29 @@
     <% } %>
 </table>
 
+<form id="update" >
 
+    <label for="id">id:</label>
+    <select class="form-control" name="id" id="id">
+        <option selected="selected">Select</option>
+            <option value= <%=id%> > <%=id%> </option>
+    </select><br><br>
+
+
+    <label for="email">email:</label>
+    <input type="text" id="email" name="email" value=<%=email1.substr(1,email1.length-2)%> ><br><br>
+    <label for="last">last:</label>
+    <input type="text" id="last" name="last" value=<%=last1.substr(0,last1.length-1)%>><br><br>
+    <label for="first">first:</label>
+    <input type="text" id="first" name="first" value=<%=first1.substr(1,first1.length-1)%>><br><br>
+    <label for="middle">middle:</label>
+    <input type="text" id="middle" name="middle" value=<%=middle1%>><br><br>
+
+    <label for="birthdate">birthdate (yyyy-mm-dd):</label>
+    <input type="date" id="birthdate" name="birthdate"><br><br>
+
+    <input type="submit" value="Submit">
+</form>
 
 <form id="backbutton" action="/students/login" method="GET" >
     <button for="back">back to login </button><br><br>
@@ -78,7 +107,37 @@
 
 
 <br />
-
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+    (function($){
+        function processForm( update ){
+            const data = new FormData(update.target);
+            payload = Object.fromEntries(data.entries())
+            if (!payload.middle) delete payload.middle
+            if (!payload.birthdate) delete payload.birthdate
+            $.ajax({
+                url: '/students',
+                dataType: 'json',
+                type: 'put',
+                contentType: 'application/json',
+                data: JSON.stringify(payload),
+                success: function(data, textStatus, jQxhr){
+                    alert(data.message)
+                    window.location.href="/students/<%=id%>/info";
+                  
+                },
+                error: function(jqXhr, textStatus, errorThrown){
+                    alert("Failed to Update")
+                    window.location.href="/students/<%=id%>/info";
+                    console.log(errorThrown);
+                    console.log(payload);
+                }
+            });
+            update.preventDefault();
+        }
+        $('#update').submit( processForm );
+    })(jQuery);
+</script>
 
 </body>
 </html>
