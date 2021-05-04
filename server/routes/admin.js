@@ -10,6 +10,14 @@ const ENDPOINT = '/admin';
 const ENTITY = 'admin';
 
 module.exports = (app) => {
+    app.get(ENDPOINT + '/salaries', (req, res) => {
+        const sql = `SELECT scope AS position, id, email, salary FROM ((SELECT scope, id, email, salary FROM advisors) UNION (SELECT scope, id, email, salary FROM teachers)) AS a;`;
+        executeQuery(sql, (err, results) => {
+            if (err) return res.status(500).json(err);
+            return res.render('admin/salaries.ejs', {userData: results});
+        });
+    });
+
     app.get(ENDPOINT + '/register', (req, res) => {
         return res.render('admin/registerAdmin.ejs');
     });
