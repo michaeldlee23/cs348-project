@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Add a course</title>
+    <style type="text/css">
+        section {
+            border-bottom: 1px solid grey;
+            padding-bottom: 10px;
+        }
+
+        section p:first-of-type>strong {
+            color: rgb(2.8%, 11.1%, 47.6%);
+        }
+
+        section p:nth-of-type(2)>strong {
+            color: rgb(29.1%, 30.8%, 38.2%);
+        }
+    </style>
+</head>
+
+<body>
+<h3>Manage Students:</h3>
+<table id="table" border="1" style="margin-bottom:1cm" >
+    <tr>
+        <th style="background-color: darkgray;">id</th>
+        <th style="background-color: darkgray;">last</th>
+        <th style="background-color: darkgray;">first</th>
+        <th style="background-color: darkgray;">middle</th>
+    </tr>
+    
+    <%
+    if(students.length!=0){
+    var i=1;
+    students.forEach(function(data){
+    %>
+    <tr>
+        <td style="background-color: darkgray;"><%=data.id %></td>
+        <td style="background-color: darkgray;"><%=data.last %></td>
+        <td style="background-color: darkgray;"><%=data.first %></td>
+        <td style="background-color: darkgray;"><%=data.middle %></td>
+        <td><button class="deleterow">Remove</button></td>
+    </tr>
+    <%  i++; }) %>
+    <% } else{ %>
+        <tr>
+            <td colspan="7">No Data Found</td>
+        </tr>
+    <% } %>
+</table>
+
+<form id="addStudent" method="POST">
+<label for="studentID">Student ID:</label>
+<input type="number" id="studentID" name="studentID"><br><br>
+
+<input type="submit" value="Add Student">
+</form>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+    $(function() {
+        var i = 0;
+        $("tr").each(function() {
+            $(this).find("button").attr("id", i);
+            $(this).find("button").attr("id", i++);
+        });
+    });
+    var success = "";
+    (function($){
+        function submitChanges( e ){
+            console.log(e.target.id);
+            const el = document.getElementById("table"),
+                input = el.nodeName != 'INPUT' && el.nodeName != 'TEXTAREA',
+                data = {};
+            if (input) {
+                const data = new FormData(e.target);
+                payload = Object.fromEntries(data.entries())
+                if (!payload.middle) delete payload.middle
+                payload.courseID="<%=courseID%>";
+                $.ajax({
+                    url: '/studentCourse',
+                    dataType: 'json',
+                    type: 'post',
+                    contentType: 'application/json',
+                    data: JSON.stringify(payload), 
+                    success: function(data, textStatus, jQxhr) {
+                        alert(data.message);
+                        window.location.href=window.location.href;
+                    },
+                    error: function(jqXhr, textStatus, errorThrown){
+                        alert("Check the input and try again. Does this ID actually exist?");
+                        console.log(errorThrown);
+                        console.log(payload);
+                    }
+                });
+            }
+            e.preventDefault();
+        }
+
+
+        function removeStudent( e ){
+            console.log(e.target.id);
+            const el = document.getElementById("table"),
+                input = el.nodeName != 'INPUT' && el.nodeName != 'TEXTAREA',
+                data = {};
+            if (input) {
+                var toSend = createPairing(el, e.target.id);
+                success = "";
+                
+                var tableRow = el.rows[e.target.id];
+                $.ajax({
+                    url: '/studentCourse',
+                    dataType: 'json',
+                    type: 'delete',
+                    contentType: 'application/json',
+                    data: JSON.stringify(toSend), 
+                    success: function(data, textStatus, jQxhr) {
+                        alert(data.message);
+                        window.location.href=window.location.href;
+                    },
+                    error: function(jqXhr, textStatus, errorThrown){
+                        alert("Something went wrong removing student from course");
+                        console.log(errorThrown);
+                        console.log(toSend);
+                    }
+                });
+            }
+            e.preventDefault();
+        }
+        function createPairing(table, row) {
+            var data = {};
+            console.log(row);
+            var tableRow = table.rows[row];
+            data["courseID"] = "<%=courseID%>";
+            data["studentID"] = tableRow.cells[0].innerHTML;
+            return data;
+        }
+
+        $('#addStudent').submit(submitChanges);
+        $('.deleterow').click(function(e) { removeStudent(e); });
+    })(jQuery);
+
+</script>
+</body>
+
+<script>
+    document.addEventListener('keydown', function (event) {
+    var esc = event.which == 27,
+        nl = event.which == 13,
+        el = event.target,
+        input = el.nodeName != 'INPUT' && el.nodeName != 'TEXTAREA',
+        data = {};
+
+    if (input) {
+        if (esc) {
+        // restore state
+        
+        document.execCommand('undo');
+        el.blur();
+        } else if (nl) {
+        // save
+        
+        data[el.getAttribute('data-name')] = el.innerHTML;
+
+        console.log(tableToJson(el));
+
+        el.blur();
+        event.preventDefault();
+        }
+    }
+    }, true);
+
+    function tableToJson(table) {
+        var data = [];
+
+        // first row needs to be headers
+        var headers = [];
+        for (var i=0; i<table.rows[0].cells.length; i++) {
+            headers[i] = table.rows[0].cells[i].innerHTML.toLowerCase().replace(/ /gi,'');
+        }
+
+        // go through cells
+        for (var i=1; i<table.rows.length; i++) {
+
+            var tableRow = table.rows[i];
+            var rowData = {};
+
+            for (var j=0; j<tableRow.cells.length; j++) {
+
+                rowData[ headers[j] ] = tableRow.cells[j].innerHTML;
+
+            }
+
+            data.push(rowData);
+        }       
+
+        return data;
+    }
+</script>
+
+
+</html>

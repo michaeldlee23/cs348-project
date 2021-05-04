@@ -23,12 +23,12 @@
 </head>
 
 <body>
-<h2>Teacher InfoPage</h2>
+<h2>Advisor InfoPage</h2>
 
 
 
 
-<form id="teacherInfo" action="/teachers/<%=id%>/info" method="GET" >
+<form id="teacherInfo" action="/advisors/<%=id%>/info" method="GET" >
 
     <% var first = JSON.stringify(info1[0].first) %>
     <% var middle = JSON.stringify(info1[0].middle) %>
@@ -43,12 +43,10 @@
     <label for="birthdate">birthdate: <%=JSON.stringify(info1[0].birthdate)%>  </label><br><br>
     <label for="salary">salary: <%=JSON.stringify(info1[0].salary)%>  </label><br><br>
     <label for="phone">phone: <%=JSON.stringify(info1[0].phone)%>  </label><br><br>
-    <label for="departmentID">departmentID: <%=JSON.stringify(info1[0].departmentID)%>  </label><br><br>
-
 </form>
 
 
-<h3>Assigned Courses:</h3>
+<h3>All Courses List:</h3>
 <table id="table" border="1" style="margin-bottom:1cm" >
     <tr>
         <th style="background-color: darkgray;">courseID</th>
@@ -69,7 +67,7 @@
         <td style="background-color: darkgray;"><%=data.code %></td>
         <td style="background-color: darkgray;"><%=data.name %></td>
         <td style="background-color: darkgray;"><%=data.numStudents %></td>
-        <td><button onclick="window.location.href='/teachers/<%=id%>/info/<%=data.courseID %>'">Manage</button></td>
+        <td><button onclick="window.location.href='/advisors/<%=id%>/info/<%=data.courseID %>'">Manage Students</button></td>
     </tr>
     <%  i++; }) %>
     <% } else{ %>
@@ -81,7 +79,7 @@
 
 
 
-<form id="backbutton" action="/teachers/login" method="GET" >
+<form id="backbutton" action="/advisors/login" method="GET" >
     <button for="back">back to login </button><br><br>
 </form>
 
