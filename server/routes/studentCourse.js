@@ -63,7 +63,7 @@ module.exports = (app) => {
             });
     });
 
-    app.put(ENDPOINT, authenticateToken, isTeacher, (req, res) => {
+    app.put(ENDPOINT, (req, res) => {
         const ERR_MESSAGE = 'Failed to update course grade for student';
         const SUC_MESSAGE = 'Successfully updated course grade for student';
         const payload = req.body;
