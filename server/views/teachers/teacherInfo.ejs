@@ -48,13 +48,44 @@
 </form>
 
 
+<h3>Assign Teachers:</h3>
+<table id="table" border="1" style="margin-bottom:1cm" >
+    <tr>
+        <th style="background-color: darkgray;">courseID</th>
+        <th style="background-color: darkgray;">department</th>
+        <th style="background-color: darkgray;">code</th>
+        <th style="background-color: darkgray;">name</th>
+        <th style="background-color: darkgray;">numStudents</th>
+    </tr>
+    
+    <%
+    if(courses.length!=0){
+    var i=1;
+    courses.forEach(function(data){
+    %>
+    <tr>
+        <td style="background-color: darkgray;"><%=data.courseID %></td>
+        <td style="background-color: darkgray;"><%=data.department %></td>
+        <td style="background-color: darkgray;"><%=data.code %></td>
+        <td style="background-color: darkgray;"><%=data.name %></td>
+        <td style="background-color: darkgray;"><%=data.numStudents %></td>
+        <td><button onclick="window.location.href='/teachers/<%=id%>/info/<%=data.courseID %>'">Manage</button></td>
+    </tr>
+    <%  i++; }) %>
+    <% } else{ %>
+        <tr>
+            <td colspan="7">No Data Found</td>
+        </tr>
+    <% } %>
+</table>
+
+
+
 <form id="backbutton" action="/teachers/login" method="GET" >
     <button for="back">back to login </button><br><br>
 </form>
 
 
 <br />
-
-
 </body>
 </html>
