@@ -35,6 +35,15 @@ module.exports = (app) => {
         });
     });
 
+    app.get(ENDPOINT + '/:id/students', (req, res) => {
+        const infoSQL = `SELECT * FROM ${ENTITY} WHERE id=?`;
+        executeQuery(infoSQL, [req.params.id], (err, inform) => {
+            if (err)  return res.status(500).json(err); 
+            const info = inform;
+            delete info[0].password;
+            return res.render('teachers/teacherStudents.ejs',{id:req.params.id,info1:info});
+        });
+    });
 
     app.post(ENDPOINT + '/register', async (req, res) => {
         const ERR_MESSAGE = 'Failed to add teacher';

@@ -25,12 +25,12 @@
 <body>
 
 <h3>Manage salaries:</h3>
-<table id="table" border="1" style="margin-bottom:1cm" contenteditable="true">
+<table id="table" border="1" style="margin-bottom:1cm" >
     <tr>
-        <th>position</th>
-        <th>id</th>
-        <th>email</th>
-        <th>salary</th>
+        <th style="background-color: darkgray;">position</th>
+        <th style="background-color: darkgray;">id</th>
+        <th style="background-color: darkgray;">email</th>
+        <th >salary</th>
     </tr>
     
     <%
@@ -39,9 +39,9 @@
     userData.forEach(function(data){
     %>
     <tr>
-        <td><%=data.position %></td>
-        <td><%=data.id %></td>
-        <td><%=data.email %></td>
+        <td style="background-color: darkgray;"><%=data.position %></td>
+        <td style="background-color: darkgray;"><%=data.id %></td>
+        <td style="background-color: darkgray;"><%=data.email %></td>
         <td><%=data.salary %></td>
     </tr>
     <%  i++; }) %>
@@ -55,6 +55,11 @@
 <button type="button" id="submitButton">Submit changes</button>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script>
+    $(function() {
+        $("tr").each(function() {
+            $(this).find("td:eq(3)").attr("contentEditable", true);
+        });
+    });
     var success = "";
     (function($){
         function submitChanges( e ){
@@ -80,6 +85,7 @@
                             }
                         },
                         error: function(jqXhr, textStatus, errorThrown){
+                            alert("One or more modifications failed. Check the input and try again");
                             console.log(errorThrown);
                             console.log(advisors[i]);
                         }
@@ -99,6 +105,7 @@
                             }
                         },
                         error: function(jqXhr, textStatus, errorThrown){
+                            alert("One or more modifications failed. Check the input and try again");
                             console.log(errorThrown);
                             console.log(teachers[i]);
                         }

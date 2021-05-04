@@ -17,6 +17,18 @@ module.exports = (app) => {
         });
     });
 
+    app.get(ENDPOINT + '/assignTeachers', (req, res) => {
+        const sql1 = `SELECT id, code, name, departmentID, teacherID, email FROM ${ENTITY} AS a LEFT JOIN (SELECT c.courseID, c.teacherID, d.email FROM teacherCourseRel AS c JOIN teachers AS d ON teacherID=id) AS b ON a.id=b.courseId`;
+        const sql2 = `SELECT id, email, last, first, middle, departmentID FROM teachers`;
+        executeQuery(sql1, (err, result1) => {
+            if (err) return res.status(500).json(err);
+            executeQuery(sql2, (err, result2) => {            
+                if (err) return res.status(500).json(err);
+                return res.render('admin/assignTeachers.ejs', {courseData: result1, teacherData: result2});
+            });
+        });
+    });
+
     app.get(ENDPOINT + '/add', (req, res) => {
         const sql = `SELECT * FROM departments`;
         executeQuery(sql, (err, results) => {
