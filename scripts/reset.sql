@@ -3,7 +3,9 @@ source school-schema.sql;
 
 -- Stored procedures
 source sp-calc-gpa.sql
-sourec sp-get-course-data.sql
+source sp-get-course-data.sql
+source sp-change-department.sql
+source sp-move-dept-funds.sql
 
 -- Triggers
 source trigger-after-update-grade.sql

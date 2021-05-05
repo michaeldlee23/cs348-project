@@ -3,7 +3,7 @@
 //const pool = require('../connection');
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
-const { executeQuery } = require('../util/db');
+const { executeQuery, executeTransaction } = require('../util/db');
 const { authenticateToken, isAdmin } = require('../util/authenticate');
 
 const ENDPOINT = '/departments';
@@ -66,6 +66,47 @@ module.exports = (app) => {
         });
     });
 
+    app.put(ENDPOINT + '/merge', (req, res) => {
+        const ERR_MESSAGE = 'Failed to merge departments';
+        const SUC_MESSAGE = 'Successfully merged departments';
+        const payload = req.body;
+        const err = validation.request.departments.putMergeDepartmentSchema.validate(payload).error;
+        if (err) {
+            return res.status(400).json({
+                error: ERR_MESSAGE,
+                message: err.message,
+            });
+        }
+        const queries = [];
+        const vars = [];
+        // Withdraw from department budget
+        const changeCoursesSQL = `CALL changeDepartmentTable('courses',?,?)`;
+        queries.push(changeCoursesSQL);
+        vars.push([payload.keepid, payload.deleteid])
+
+        const changeTeachersSQL = `CALL changeDepartmentTable('teachers',?,?)`;
+        queries.push(changeTeachersSQL);
+        vars.push([payload.keepid, payload.deleteid])
+        
+        const changeOrgSQL = `CALL changeDepartmentTable('organizations',?,?)`;
+        queries.push(changeOrgSQL);
+        vars.push([payload.keepid, payload.deleteid])
+        // Deposit into organization budget
+        const depositSQL = `CALL moveDepartmentFunds(?,?)`;
+        queries.push(depositSQL);
+        vars.push([payload.keepid, payload.deleteid]);
+        const deleteSQL = `DELETE FROM departments WHERE id=?`;
+        queries.push(deleteSQL);
+        vars.push([payload.deleteid]);
+        const isolation = "REPEATABLE READ";
+        executeTransaction(isolation, queries, vars, (err) => {
+            if (err) {
+                err.error = ERR_MESSAGE;
+                return res.status(500).json(err);
+            }
+            return res.status(200).json({ message: SUC_MESSAGE });
+        });
+    })
 
     app.post(ENDPOINT,authenticateToken, isAdmin, (req, res) => {
         const ERR_MESSAGE = 'Failed to add departments';

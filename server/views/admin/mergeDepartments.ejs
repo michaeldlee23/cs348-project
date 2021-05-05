@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Adjust Budgets</title>
+    <style type="text/css">
+        section {
+            border-bottom: 1px solid grey;
+            padding-bottom: 10px;
+        }
+
+        section p:first-of-type>strong {
+            color: rgb(2.8%, 11.1%, 47.6%);
+        }
+
+        section p:nth-of-type(2)>strong {
+            color: rgb(29.1%, 30.8%, 38.2%);
+        }
+    </style>
+</head>
+
+<body>
+
+    <h3>Departments:</h3>
+    <table id="table" border="1" style="margin-bottom:1cm" >
+        <tr>
+            <th style="background-color: darkgray;">Department ID</th>
+            <th style="background-color: darkgray;">Name</th>
+            <th style="background-color: darkgray;">Budget</th>
+            <th style="background-color: darkgray;">Number of Courses</th>
+            <th style="background-color: darkgray;">Number of Teachers</th>
+            <th style="background-color: darkgray;">Number of Orgs</th>
+        </tr>
+        
+        <%
+        if(deps.length!=0){
+        var i=1;
+        deps.forEach(function(data){
+        %>
+        <tr>
+            <td style="background-color: darkgray;"><%=data.id %></td>
+            <td style="background-color: darkgray;"><%=data.name %></td>
+            <td style="background-color: darkgray;"><%=data.budget %></td>
+            <td style="background-color: darkgray;"><%=data.numCourses %></td>
+            <td style="background-color: darkgray;"><%=data.numTeachers %></td>
+            <td style="background-color: darkgray;"><%=data.numOrgs %></td>
+        </tr>
+        <%  i++; }) %>
+        <% } else{ %>
+            <tr>
+                <td colspan="7">No Data Found</td>
+            </tr>
+        <% } %>
+    </table>
+
+<form id="mergeDepartments" method="POST">
+    <label for="deleteid">Merge departmentID:</label>
+    <input type="number" id="deleteid" name="deleteid"><br><br>
+    <label for="keepid">into departmentID:</label>
+    <input type="number" id="keepid" name="keepid"><br><br>
+    
+    <input type="submit" value="Merge!">
+</form>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script>
+        (function($){
+            function submitChanges( e ){
+                console.log(e.target.id);
+                const input = e.nodeName != 'INPUT' && e.nodeName != 'TEXTAREA',
+                    data = {};
+                if (input) {
+                    const data = new FormData(e.target);
+                    payload = Object.fromEntries(data.entries())
+                    if (!payload.middle) delete payload.middle
+                    $.ajax({
+                        url: '/departments/merge',
+                        dataType: 'json',
+                        type: 'put',
+                        contentType: 'application/json',
+                        data: JSON.stringify(payload), 
+                        success: function(data, textStatus, jQxhr) {
+                            alert(data.message);
+                            window.location.href=window.location.href;
+                        },
+                        error: function(jqXhr, textStatus, errorThrown){
+                            alert("Check the input and try again. Does this ID actually exist?");
+                            console.log(errorThrown);
+                            console.log(payload);
+                        }
+                    });
+                }
+                e.preventDefault();
+            }
+            $('#mergeDepartments').submit(submitChanges);
+        })(jQuery);
+    </script>
+
+</body>
+
+<script>
+    document.addEventListener('keydown', function (event) {
+    var esc = event.which == 27,
+        nl = event.which == 13,
+        el = event.target,
+        input = el.nodeName != 'INPUT' && el.nodeName != 'TEXTAREA',
+        data = {};
+
+    if (input) {
+        if (esc) {
+        // restore state
+        
+        document.execCommand('undo');
+        el.blur();
+        } else if (nl) {
+        // save
+        
+        data[el.getAttribute('data-name')] = el.innerHTML;
+
+        console.log(tableToJson(el));
+
+        el.blur();
+        event.preventDefault();
+        }
+    }
+    }, true);
+
+    function tableToJson(table) {
+        var data = [];
+
+        // first row needs to be headers
+        var headers = [];
+        for (var i=0; i<table.rows[0].cells.length; i++) {
+            headers[i] = table.rows[0].cells[i].innerHTML.toLowerCase().replace(/ /gi,'');
+        }
+
+        // go through cells
+        for (var i=1; i<table.rows.length; i++) {
+
+            var tableRow = table.rows[i];
+            var rowData = {};
+
+            for (var j=0; j<tableRow.cells.length; j++) {
+
+                rowData[ headers[j] ] = tableRow.cells[j].innerHTML;
+
+            }
+
+            data.push(rowData);
+        }       
+
+        return data;
+    }
+</script>
+
+
+</html>

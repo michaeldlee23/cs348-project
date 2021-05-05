@@ -1,7 +1,7 @@
-DROP PROCEDURE IF EXISTS getCourseData;
+DROP PROCEDURE IF EXISTS changeDepartmentTable;
 DELIMITER //
 
-CREATE PROCEDURE getCourseData (IN tablename varchar(50), IN din INT, IN ddelete INT)
+CREATE PROCEDURE changeDepartmentTable (IN tablename varchar(50), IN din INT, IN ddelete INT)
 
 BEGIN
 
