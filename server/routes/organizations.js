@@ -3,7 +3,7 @@
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
 const { executeQuery, executeTransaction } = require('../util/db');
-const { authenticateToken, isStudent, isAdmin } = require('../util/authenticate');
+const { authenticateToken, verifyToken, isStudent, isAdmin } = require('../util/authenticate');
 
 const ENDPOINT = '/organizations';
 const ENTITY = 'organizations';
@@ -114,7 +114,7 @@ module.exports = (app) => {
         });
     });
 
-    app.put(ENDPOINT + '/budget', authenticateToken, isAdmin, (req, res) => {
+    app.put(ENDPOINT + '/budget', verifyToken, isAdmin, (req, res) => {
         const ERR_MESSAGE = 'Failed to update organization budget';
         const SUC_MESSAGE = 'Successfully updated organization budget';
         const payload = req.body;

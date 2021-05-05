@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Add a course</title>
+    <title>Adjust Budgets</title>
     <style type="text/css">
         section {
             border-bottom: 1px solid grey;
@@ -24,25 +24,29 @@
 
 <body>
 
-<h3>Manage salaries:</h3>
-<table id="table" border="1" style="margin-bottom:1cm" >
+<h3>Manage budgets:</h3>
+<table id="orgDetails" border="1" style="margin-bottom:1cm" >
     <tr>
-        <th style="background-color: darkgray;">position</th>
-        <th style="background-color: darkgray;">id</th>
-        <th style="background-color: darkgray;">email</th>
-        <th >salary</th>
+        <th style="background-color: darkgray;">Organization ID</th>
+        <th style="background-color: darkgray;">Organization</th>
+        <th style="background-color: darkgray;">Type</th>
+        <th style="background-color: darkgray;">Department</th>
+        <th style="background-color: darkgray;">Organization Budget</th>
+        <th >Amount</th>
     </tr>
     
     <%
-    if(userData.length!=0){
+    if(results.length!=0){
     var i=1;
-    userData.forEach(function(data){
+    results.forEach(function(data){
     %>
     <tr>
-        <td style="background-color: darkgray;"><%=data.position %></td>
-        <td style="background-color: darkgray;"><%=data.id %></td>
-        <td style="background-color: darkgray;"><%=data.email %></td>
-        <td><%=data.salary %></td>
+        <td style="background-color: darkgray;"><%=data.orgID %></td>
+        <td style="background-color: darkgray;"><%=data.org %></td>
+        <td style="background-color: darkgray;"><%=data.type %></td>
+        <td style="background-color: darkgray;"><%=data.dept %></td>
+        <td style="background-color: darkgray;"><%=data.orgBudget %></td>
+        <td ></td>
     </tr>
     <%  i++; }) %>
     <% } else{ %>
@@ -52,104 +56,108 @@
     <% } %>
 </table>
 
-<button type="button" id="submitButton">Submit changes</button>
+<table id="deptDetails" border="1" style="margin-bottom:1cm" >
+    <tr>
+        <th style="background-color: darkgray;">Department</th>
+        <th style="background-color: darkgray;">Department Budget</th>
+    </tr>
+    
+    <%
+    if(results.length!=0){
+        const seen = []
+        results.forEach(function(data){
+            if (!seen.includes(data.dept)) {
+    %>
+    <tr>
+        <td style="background-color: darkgray;"><%=data.dept %></td>
+        <td style="background-color: darkgray;"><%=data.deptBudget %></td>
+    </tr>
+    <%      }
+            seen.push(data.dept);
+        }); 
+    %>
+    <% } else{ %>
+        <tr>
+            <td colspan="7">No Data Found</td>
+        </tr>
+    <% } %>
+</table>
+
+<button type="button" id="depositButton">Deposit</button>
+<button type="button" id="withdrawButton">Withdraw</button>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script>
     $(function() {
         $("tr").each(function() {
-            $(this).find("td:eq(3)").attr("contentEditable", true);
+            $(this).find("td:eq(5)").attr("contentEditable", true);
         });
     });
     var success = "";
     (function($){
-        function submitChanges( e ){
-            const el = document.getElementById("table"),
+        function makeChanges( e ){
+            alert(e.currentTarget.isDeposit);
+            const el = document.getElementById("orgDetails"),
                 input = el.nodeName != 'INPUT' && el.nodeName != 'TEXTAREA',
                 data = {};
             if (input) {
-                const ppl = grabTable(el);
-                const advisors = ppl[0];
-                const teachers = ppl[1];
+                const { orgs, changes } = grabTable(el, e.currentTarget.isDeposit);
                 success = "";
-                for (var i = 0; i < advisors.length; i++) {
-                    $.ajax({
-                        url: '/advisors',
-                        dataType: 'json',
-                        type: 'put',
-                        contentType: 'application/json',
-                        data: JSON.stringify(advisors[i]), 
-                        success: function(data, textStatus, jQxhr) {
-                            if (success == "") {
-                                success = "Sent changes to advisor and teacher";
-                                alert(success);
+                for (var i = 0; i < orgs.length; i++) {
+                    if (changes[i]) {
+                        $.ajax({
+                            url: '/organizations/budget',
+                            dataType: 'json',
+                            type: 'put',
+                            contentType: 'application/json',
+                            data: JSON.stringify({ id: orgs[i], amount: changes[i] }), 
+                            success: function(data, textStatus, jQxhr) {
+                                if (success == "") {
+                                    success = "Updated organization budget";
+                                    alert(success);
+                                    window.location.href = window.location.href;
+                                }
+                            },
+                            error: function(jqXhr, textStatus, errorThrown){
+                                alert("One or more modifications failed. Check the input and try again");
+                                console.log(errorThrown);
+                                console.log(orgs[i], changes[i]);
                             }
-                        },
-                        error: function(jqXhr, textStatus, errorThrown){
-                            alert("One or more modifications failed. Check the input and try again");
-                            console.log(errorThrown);
-                            console.log(advisors[i]);
-                        }
-                    });
-                }
-                for (var i = 0; i < teachers.length; i++) {
-                    $.ajax({
-                        url: '/teachers',
-                        dataType: 'json',
-                        type: 'put',
-                        contentType: 'application/json',
-                        data: JSON.stringify(teachers[i]), 
-                        success: function(data, textStatus, jQxhr) {
-                            if (success == "") {
-                                success = "Sent changes to advisor and teacher";
-                                alert(success);
-                            }
-                        },
-                        error: function(jqXhr, textStatus, errorThrown){
-                            alert("One or more modifications failed. Check the input and try again");
-                            console.log(errorThrown);
-                            console.log(teachers[i]);
-                        }
-                    });
+                        });
+                    }
                 }
             }
             e.preventDefault();
         }
 
-        submitButton.addEventListener("click", submitChanges);
+        depositButton.addEventListener("click", makeChanges, false);
+        depositButton.isDeposit = true;
+        withdrawButton.addEventListener("click", makeChanges, false);
+        withdrawButton.isDeposit = false;
     })(jQuery);
 
 
-    function grabTable(table) {
-        var data = [2];
-        data[0] = [];
-        data[1] = [];
+    function grabTable(table, isDeposit) {
+        const data = { orgs: [], changes: [] };
 
         // first row needs to be headers
         var headers = [];
         for (var i=0; i<table.rows[0].cells.length; i++) {
-            headers[i] = table.rows[0].cells[i].innerHTML.toLowerCase().replace(/ /gi,'');
+            headers[i] = table.rows[0].cells[i].innerHTML;
         }
 
+        const idIdx = headers.indexOf('Organization ID');
+        const amtIdx = headers.indexOf('Amount');
         // go through cells
         for (var i=1; i<table.rows.length; i++) {
-
-            var tableRow = table.rows[i];
-            var rowData = {};
-
-            for (var j=1; j<tableRow.cells.length; j++) {
-
-                rowData[ headers[j] ] = tableRow.cells[j].innerHTML;
-
-            }
-            if (tableRow.cells[0].innerHTML == "ADVISOR") {
-                
-                data[0].push(rowData);
-            }
-            else {
-                data[1].push(rowData);
+            const tableRow = table.rows[i];
+            data.orgs.push(tableRow.cells[idIdx].innerHTML);
+            if (isDeposit) {
+                data.changes.push(parseFloat(tableRow.cells[amtIdx].innerHTML));
+            } else {
+                data.changes.push(-1 * parseFloat(tableRow.cells[amtIdx].innerHTML));
             }
         }       
-
+        console.log(JSON.stringify(data));
         return data;
     }
 </script>

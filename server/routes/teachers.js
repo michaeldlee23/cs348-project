@@ -43,9 +43,9 @@ module.exports = (app) => {
                                     GROUP BY m.courseID) AS num 
                                 ON co.courseID=num.courseID`
     
-        executeQuery(infoSQL, [req.params.id], (err, inform) => {
+        executeQuery(infoSQL, [req.params.id], (err, info) => {
             if (err)  return res.status(500).json(err); 
-            const info = inform;
+            if (!info[0]) return res.status(403).send("Forbidden");
             delete info[0].password;
             executeQuery(courseDataSQL, [req.params.id], (er, cData) => {
                 return res.render('teachers/teacherInfo.ejs',{id:req.params.id,info1:info, courses:cData});
@@ -106,11 +106,15 @@ module.exports = (app) => {
         payload.scope = 'TEACHER';
 
         const sql = `INSERT INTO ${ENTITY}(${Object.keys(payload).toString()}) VALUES (?)`;
-        executeQuery(sql, [Object.values(payload)], (err) => {
+        executeQuery(sql, [Object.values(payload)], (err, results) => {
             if (err) return res.status(500).json(err);
             const token = generateAccessToken({
+                id: results.insertId,
                 email: payload.email,
                 scope: payload.scope,
+            });
+            res.cookie('token',token,{
+                httpOnly:true,
             });
             return res.status(200).json({
                 message: SUC_MESSAGE,
@@ -139,6 +143,7 @@ module.exports = (app) => {
             const validPass = await bcrypt.compare(payload.password, user.password);
             if (!validPass) return res.status(401).send('Incorrect password');
             const token = generateAccessToken({
+                id: user.id,
                 email: user.email,
                 scope: user.scope,
             });
