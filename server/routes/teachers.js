@@ -27,32 +27,14 @@ module.exports = (app) => {
     });
     app.get(ENDPOINT + '/:id/info', (req, res) => {
         const infoSQL = `SELECT * FROM ${ENTITY} WHERE id=?`;
-        const courseDataSQL = `SELECT co.courseID, co.code, co.name, co.department, COALESCE(num.numStudents, 0) AS numStudents 
-                            FROM (SELECT courseID, code, b.name, department
-                                  FROM (
-                                       (SELECT * 
-                                        FROM teacherCourseRel 
-                                        WHERE teacherID=?) AS a 
-                                        JOIN (
-                                            SELECT cour.id, code, cour.name, d.name AS department 
-                                            FROM courses AS cour 
-                                            JOIN departments AS d 
-                                            ON cour.departmentID=d.id) AS b 
-                                        ON a.courseID=b.id)) AS co 
-                                LEFT JOIN (SELECT courseID, count(*) AS numStudents 
-                                    FROM (
-                                        SELECT * 
-                                        FROM studentCourseRel AS sc 
-                                        JOIN students AS s ON sc.studentID=s.id) AS m 
-                                    GROUP BY m.courseID) AS num 
-                                ON co.courseID=num.courseID`
+        const courseDataSQL = `CALL getCourseData(?)`
     
         executeQuery(infoSQL, [req.params.id], (err, inform) => {
             if (err)  return res.status(500).json(err); 
             const info = inform;
             delete info[0].password;
             executeQuery(courseDataSQL, [req.params.id], (er, cData) => {
-                return res.render('teachers/teacherInfo.ejs',{id:req.params.id,info1:info, courses:cData});
+                return res.render('teachers/teacherInfo.ejs',{id:req.params.id,info1:info, courses:cData[0]});
             })
         });
     });
