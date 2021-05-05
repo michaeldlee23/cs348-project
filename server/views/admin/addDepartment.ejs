@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Add a course</title>
+    <title>Modify departments</title>
     <style type="text/css">
         section {
             border-bottom: 1px solid grey;
@@ -23,6 +23,34 @@
 </head>
 
 <body>
+
+<h3>Current Departments:</h3>
+<table id="table" border="1" style="margin-bottom:1cm" >
+    <tr>
+        <th style="background-color: darkgray;">id</th>
+        <th style="background-color: darkgray;">name</th>
+        <th style="background-color: darkgray;">budget</th>
+    </tr>
+    
+    <%
+    if(students.length!=0){
+    var i=1;
+    students.forEach(function(data){
+    %>
+    <tr>
+        <td style="background-color: darkgray;"><%=data.id %></td>
+        <td style="background-color: darkgray;"><%=data.name %></td>
+        <td style="background-color: darkgray;"><%=data.budget %></td>
+        <td><button class="deleterow">Remove</button></td>
+    </tr>
+    <%  i++; }) %>
+    <% } else{ %>
+        <tr>
+            <td colspan="7">No Data Found</td>
+        </tr>
+    <% } %>
+</table>
+
 <h2>Add Department</h2>
 
 <form id="addDepartment" action="/departments/add" method="POST" >
@@ -59,7 +87,37 @@
             });
             e.preventDefault();
         }
+        
+        function removeStudent( e ){
+            console.log(e.target.id);
+            const el = document.getElementById("table"),
+                input = el.nodeName != 'INPUT' && el.nodeName != 'TEXTAREA',
+                data = {};
+            if (input) {
+                success = "";
+                
+                var tableRow = el.rows[e.target.id];
+                $.ajax({
+                    url: '/departments/' + tableRow.cells[0].innerHTML,
+                    dataType: 'json',
+                    type: 'delete',
+                    contentType: 'application/json',
+                    data: JSON.stringify(toSend), 
+                    success: function(data, textStatus, jQxhr) {
+                        alert(data.message);
+                        window.location.href=window.location.href;
+                    },
+                    error: function(jqXhr, textStatus, errorThrown){
+                        alert("Something went wrong removing student from course");
+                        console.log(errorThrown);
+                        console.log(toSend);
+                    }
+                });
+            }
+            e.preventDefault();
+        }
 
+        $('.deleterow').click(function(e) { removeStudent(e); });
         $('#addDepartment').submit( processForm );
     })(jQuery);
 </script>

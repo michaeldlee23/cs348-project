@@ -51,8 +51,11 @@
     <%  i++; }) %>
     <% } else{ %>
         <tr>
-            <td colspan="7">No Data Found</td>
+            <th style="background-color: darkgray;">id</th>
+            <th style="background-color: darkgray;">name</th>
+            <th style="background-color: darkgray;">budget</th>
         </tr>
+
     <% } %>
 </table>
 
@@ -131,6 +134,7 @@
                         window.location.href = window.location.href;
                     });
             }
+
             e.preventDefault();
         }
 
@@ -166,6 +170,7 @@
         return data;
     }
 </script>
+
 </body>
 
 </html>
