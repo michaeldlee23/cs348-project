@@ -111,7 +111,7 @@
                 success = "";
                 
                 var tableRow = el.rows[e.target.id];
-                if (isNaN(parseInt(tableRow.cells[6].innerHTML))) {
+                if (isNaN(parseFloat(tableRow.cells[6].innerHTML))) {
                     alert("Input was either empty or not a number");
                     return;
                 }
@@ -202,7 +202,7 @@
         console.log(row);
         var tableRow = table.rows[row];
         data["courseID"] = tableRow.cells[0].innerHTML;
-        data["teacherID"] = parseInt(tableRow.cells[6].innerHTML);
+        data["teacherID"] = parseFloat(tableRow.cells[6].innerHTML);
         return data;
     }
 </script>

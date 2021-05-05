@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
 const { executeQuery } = require('../util/db');
-const { generateAccessToken, authenticateToken,verifyToken, isTeacher, isAdmin } = require('../util/authenticate');
+const { generateAccessToken, verifyToken, isTeacher, isAdmin } = require('../util/authenticate');
 
 const ENDPOINT = '/teachers';
 const ENTITY = 'teachers';
@@ -79,9 +79,9 @@ module.exports = (app) => {
     
         // No prepared statement because we manually sanitize via request validation
         const sql = `SELECT S.id, S.last, S.first, S.middle, grade
-                     FROM students S 
-                     INNER JOIN studentCourseRel SC ON S.id = SC.studentID
-                     INNER JOIN courses C ON SC.courseID = C.id
+                     FROM courses C 
+                     INNER JOIN studentCourseRel SC ON C.id = SC.courseID
+                     INNER JOIN students S ON SC.studentID = S.id
                      WHERE C.id = ? ${searchLast} ${searchFirst}
                      ORDER BY ${params.sortby} ${params.order}
                      LIMIT ${params.limit}`;
