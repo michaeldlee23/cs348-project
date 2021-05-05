@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
 const { executeQuery } = require('../util/db');
-const { generateAccessToken, authenticateToken, isStudent, isAdmin, verifyToken } = require('../util/authenticate');
+const { generateAccessToken, isStudent, isAdmin, verifyToken } = require('../util/authenticate');
 
 const ENDPOINT = '/students';
 const ENTITY = 'students';
@@ -32,10 +32,10 @@ module.exports = (app) => {
                            INNER JOIN courses C ON SC.courseID = C.id
                            WHERE S.id = ?`;
 
-        executeQuery(infoSQL, [req.params.id], (err, inform) => {
-            if (err)  return res.status(500).json(err); 
-            
-            const info = inform;
+        executeQuery(infoSQL, [req.params.id], (err, info) => {
+            if (err) return res.status(500).json(err); 
+            if (!info[0])
+                return res.status(403).send("Forbidden");
             delete info[0].password;
             executeQuery(gradesSQL, [req.params.id], (err, grades) => {
                 if (err)  return res.status(500).json(err); 
@@ -62,11 +62,15 @@ module.exports = (app) => {
         payload.scope = 'STUDENT';
 
         const sql = `INSERT INTO ${ENTITY}(${Object.keys(payload).toString()}) VALUES (?)`;
-        executeQuery(sql, [Object.values(payload)], (err) => {
+        executeQuery(sql, [Object.values(payload)], (err, results) => {
             if (err) return res.status(500).json(err);
             const token = generateAccessToken({
+                id: results.insertId,
                 email: payload.email,
                 scope: payload.scope,
+            });
+            res.cookie('token', token, {
+                httpOnly: true,
             });
             return res.status(200).json({
                 message: SUC_MESSAGE,
@@ -110,11 +114,6 @@ module.exports = (app) => {
             res.cookie('token',token,{
                 httpOnly:true,
             });
-  /*
-            res.cookie('token',user.id,{
-                httpOnly:true
-            });
-            */
             return res.status(200).json({
                 message: SUC_MESSAGE,
                 jwt: token,

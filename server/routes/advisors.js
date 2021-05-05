@@ -31,11 +31,15 @@ module.exports = (app) => {
         payload.scope = 'ADVISOR';
 
         const sql = `INSERT INTO ${ENTITY}(${Object.keys(payload).toString()}) VALUES (?)`;
-        executeQuery(sql, [Object.values(payload)], (err) => {
+        executeQuery(sql, [Object.values(payload)], (err, results) => {
             if (err) return res.status(500).json(err);
             const token = generateAccessToken({
+                id: results.insertId,
                 email: payload.email,
                 scope: payload.scope,
+            });
+            res.cookie('token',token,{
+                httpOnly:true,
             });
             return res.status(200).json({
                 message: SUC_MESSAGE,
@@ -64,8 +68,12 @@ module.exports = (app) => {
             const validPass = await bcrypt.compare(payload.password, user.password);
             if (!validPass) return res.status(401).send('Incorrect password');
             const token = generateAccessToken({
+                id: user.id,
                 email: user.email,
                 scope: user.scope,
+            });
+            res.cookie('token',token,{
+                httpOnly:true,
             });
             return res.status(200).json({
                 message: SUC_MESSAGE,
@@ -86,9 +94,9 @@ module.exports = (app) => {
         const infoSQL = `SELECT * FROM ${ENTITY} WHERE id=?`;
         const courseDataSQL = `CALL getCourseData(-1)`
     
-        executeQuery(infoSQL, [req.params.id], (err, inform) => {
+        executeQuery(infoSQL, [req.params.id], (err, info) => {
             if (err)  return res.status(500).json(err); 
-            const info = inform;
+            if (!info[0]) return res.status(403).send("Forbidden");
             delete info[0].password;
             executeQuery(courseDataSQL, [req.params.id], (er, cData) => {
                 console.log(cData);

@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
 const { executeQuery } = require('../util/db');
-const { generateAccessToken, authenticateToken, isAdmin } = require('../util/authenticate');
+const { generateAccessToken, authenticateToken, verifyToken, isAdmin } = require('../util/authenticate');
 
 const ENDPOINT = '/admin';
 const ENTITY = 'admin';
@@ -18,15 +18,14 @@ module.exports = (app) => {
         });
     });
 
-    app.get(ENDPOINT + '/budget', (req, res) => {
-        const sql1 = `SELECT * FROM departments`;
-        const sql2 = `SELECT o.id, o.name, o.type, o.budget, d.name AS department, o.departmentID FROM organizations AS o JOIN departments AS d ON o.departmentID=d.id`;
-        executeQuery(sql2, (err, results) => {
+    app.get(ENDPOINT + '/budgets', verifyToken, isAdmin, (req, res) => {
+        const sql = `SELECT O.id as orgID, O.name AS org, O.type, O.budget AS orgBudget, D.name AS dept, D.budget AS deptBudget
+                     FROM departments AS D
+                     INNER JOIN organizations AS O ON D.id = O.departmentID
+                     ORDER BY D.name`
+        executeQuery(sql, (err, results) => {
             if (err) return res.status(500).json(err);
-            executeQuery(sql1, (err, results2) => {
-                if (err) return res.status(500).json(err);
-                return res.render('admin/orgFunds.ejs', {orgs: results, deps: results2});
-            });
+            return res.render('admin/orgFunds.ejs', { results });
         });
     });
 
@@ -55,12 +54,18 @@ module.exports = (app) => {
         payload.scope = 'ADMIN';
 
         const sql = `INSERT INTO ${ENTITY}(${Object.keys(payload).toString()}) VALUES (?)`;
-        executeQuery(sql, [Object.values(payload)], async (err) => {
+        executeQuery(sql, [Object.values(payload)], (err, results) => {
             if (err) return res.status(500).json(err);
+            console.log(results.insertId);
             const token = generateAccessToken({
+                id: results.insertId,
                 email: payload.email,
                 scope: payload.scope,
             });
+            res.cookie('token',token,{
+                httpOnly: true,
+            });
+            req.session.user = { email: payload.email, token: token };
             return res.status(200).json({
                 message: SUC_MESSAGE,
                 jwt: token,
@@ -88,8 +93,12 @@ module.exports = (app) => {
             const validPass = await bcrypt.compare(payload.password, user.password);
             if (!validPass) return res.status(401).send('Incorrect password');
             const token = generateAccessToken({
+                id: user.id,
                 email: user.email,
                 scope: user.scope,
+            });
+            res.cookie('token',token,{
+                httpOnly:true,
             });
             return res.status(200).json({
                 message: SUC_MESSAGE,
