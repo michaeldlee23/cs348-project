@@ -9,10 +9,14 @@ const generateAccessToken = (payload) => {
 const verifyToken = async (req, res, next) => {
     const token = req.cookies.token || '';
     try {
-      const decrypt = await jwt.verify(token, config.secret);
-      req.user = decrypt
-      next();
-    } catch (err) {
+            const reqHead = req.headers.referer;
+            const decrypt = await jwt.verify(token, config.secret);
+            req.user = decrypt
+            if(!reqHead){
+                return res.status(401).send('Unauthorized request');
+            }
+            next();
+        } catch (err) {
       return res.status(500).json(err.toString());
     }
   };
