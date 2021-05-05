@@ -82,6 +82,63 @@ module.exports = (app) => {
         });
     });
 
+    app.get(ENDPOINT + '/:id/info', (req, res) => {
+        const infoSQL = `SELECT * FROM ${ENTITY} WHERE id=?`;
+        const courseDataSQL = `SELECT co.courseID, co.code, co.name, co.department, COALESCE(num.numStudents, 0) AS numStudents 
+                            FROM (SELECT b.id AS courseID, b.code, b.name, d.name AS department 
+                                  FROM courses AS b JOIN departments AS d ON b.departmentID=d.id) AS co 
+                                LEFT JOIN (SELECT courseID, count(*) AS numStudents 
+                                    FROM (
+                                        SELECT * 
+                                        FROM studentCourseRel AS sc 
+                                        JOIN students AS s ON sc.studentID=s.id) AS m 
+                                    GROUP BY m.courseID) AS num 
+                                ON co.courseID=num.courseID`
+    
+        executeQuery(infoSQL, [req.params.id], (err, inform) => {
+            if (err)  return res.status(500).json(err); 
+            const info = inform;
+            delete info[0].password;
+            executeQuery(courseDataSQL, [req.params.id], (er, cData) => {
+                return res.render('advisors/advisorInfo.ejs',{id:req.params.id,info1:info, courses:cData});
+            })
+        });
+    });
+
+    app.get(ENDPOINT + '/:id/info/:course', (req, res) => {
+        const p = req.params.course.split("?")
+        const courseID = p[0];
+        const parameter = p.length > 1 ? p[1] : null;
+        const params = {}
+        const ERR_MESSAGE = 'Failed to retrieve course details';
+        const err = validation.request.courses.getCourseSchema.validate(params).error;
+        if (err) {
+            return res.status(400).json({
+                error: ERR_MESSAGE,
+                message: 'Malformed request',
+            });
+        }
+        params.sortby = params.sortby || 'last';
+        params.order = params.order || 'asc';
+        params.limit = params.limit || 30;
+        const searchLast = params.last ? `AND last LIKE '${params.last}%'` : '';
+        const searchFirst = params.first ? `AND first LIKE '${params.first}%'` : '';
+    
+        // No prepared statement because we manually sanitize via request validation
+        const sql = `SELECT S.id, S.last, S.first, S.middle, grade
+                     FROM students S 
+                     INNER JOIN studentCourseRel SC ON S.id = SC.studentID
+                     INNER JOIN courses C ON SC.courseID = C.id
+                     WHERE C.id = ? ${searchLast} ${searchFirst}
+                     ORDER BY ${params.sortby} ${params.order}
+                     LIMIT ${params.limit}`;
+        executeQuery(sql, [courseID], (err, results) => {
+            if (err) return res.status(500).json(err);
+            console.log(results);
+            return res.render('advisors/manageStudents.ejs',{id:req.params.id,students:results, courseID:courseID});
+        });
+    });
+
     app.post(ENDPOINT + '/:id', authenticateToken, isAdvisor, (req, res) => {
         const ERR_MESSAGE = 'Failed to retrieve advisor information';
         const payload = req.body;

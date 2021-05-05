@@ -18,6 +18,15 @@ module.exports = (app) => {
         });
     });
 
+    app.get(ENDPOINT + '/budgeting', (req, res) => {
+        const sql1 = `SELECT * FROM departments`;
+        const sql2 = `SELECT * FROM organizations`;
+        executeQuery(sql, (err, results) => {
+            if (err) return res.status(500).json(err);
+            return res.render('admin/salaries.ejs', {userData: results});
+        });
+    });
+
     app.get(ENDPOINT + '/register', (req, res) => {
         return res.render('admin/registerAdmin.ejs');
     });
