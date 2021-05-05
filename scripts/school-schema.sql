@@ -91,6 +91,7 @@ CREATE TABLE courses (
     FOREIGN KEY (departmentID) REFERENCES departments (id) ON DELETE CASCADE
 );
 ALTER TABLE courses AUTO_INCREMENT=10000;
+CREATE INDEX departmentID ON courses(departmendID);
 
 CREATE TABLE organizations (
     id int(16) NOT NULL AUTO_INCREMENT,
@@ -132,7 +133,7 @@ CREATE TABLE studentCourseRel (
     CONSTRAINT studentCourseRel_fk2 FOREIGN KEY (courseID)
         REFERENCES courses (id) ON DELETE CASCADE
 );
-CREATE INDEX grade ON studentCourseRel(grade);
+CREATE INDEX courseID ON studentCourseRel(courseID);
 
 CREATE TABLE studentOrganizationRel (
     studentID int(16) NOT NULL,
@@ -146,5 +147,3 @@ CREATE TABLE studentOrganizationRel (
 CREATE INDEX position ON studentOrganizationRel(position);
 
 SET FOREIGN_KEY_CHECKS=1;
-
-source trigger-before-delete-departments.sql;

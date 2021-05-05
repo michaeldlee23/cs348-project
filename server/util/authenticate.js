@@ -21,8 +21,6 @@ const verifyToken = async (req, res, next) => {
     }
   };
 
-
-
 const authenticateToken = async (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (!authHeader) {

@@ -156,7 +156,7 @@ module.exports = (app) => {
         queries.push(depositSQL);
         vars.push([payload.id, payload.amount, payload.id]);
 
-        const isolation = "READ COMMITTED";
+        const isolation = "REPEATABLE READ";
         executeTransaction(isolation, queries, vars, (err) => {
             if (err) {
                 err.error = ERR_MESSAGE;

@@ -78,11 +78,11 @@
                 success = "";
                 
                 var tableRow = el.rows[e.target.id];
-                if (isNaN(parseInt(tableRow.cells[5].innerHTML))) {
+                if (isNaN(parseFloat(tableRow.cells[5].innerHTML))) {
                     alert("Input was either empty or not a number");
                     return;
                 }
-                if (parseInt(tableRow.cells[5].innerHTML) > 100 || parseInt(tableRow.cells[5].innerHTML) < 0) {
+                if (parseFloat(tableRow.cells[5].innerHTML) > 100 || parseFloat(tableRow.cells[5].innerHTML) < 0) {
                     alert("Grades need to be a number from 0 to 100");
                     return;
                 }
@@ -116,7 +116,7 @@
         var tableRow = table.rows[row];
         data["courseID"] = "<%= courseID %>";
         data["studentID"] = tableRow.cells[0].innerHTML;
-        data["grade"] = parseInt(tableRow.cells[5].innerHTML);
+        data["grade"] = parseFloat(tableRow.cells[5].innerHTML);
         return data;
     }
 </script>
