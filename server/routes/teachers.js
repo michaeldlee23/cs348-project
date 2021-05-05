@@ -28,13 +28,17 @@ module.exports = (app) => {
     app.get(ENDPOINT + '/:id/info', (req, res) => {
         const infoSQL = `SELECT * FROM ${ENTITY} WHERE id=?`;
         const courseDataSQL = `SELECT co.courseID, co.code, co.name, co.department, COALESCE(num.numStudents, 0) AS numStudents 
-                            FROM (SELECT courseID, code, b.name, d.name AS department 
+                            FROM (SELECT courseID, code, b.name, department
                                   FROM (
                                        (SELECT * 
                                         FROM teacherCourseRel 
                                         WHERE teacherID=?) AS a 
-                                        JOIN courses AS b ON a.courseID=b.id) 
-                                    JOIN departments AS d ON departmentID=d.id) AS co 
+                                        JOIN (
+                                            SELECT cour.id, code, cour.name, d.name AS department 
+                                            FROM courses AS cour 
+                                            JOIN departments AS d 
+                                            ON cour.departmentID=d.id) AS b 
+                                        ON a.courseID=b.id)) AS co 
                                 LEFT JOIN (SELECT courseID, count(*) AS numStudents 
                                     FROM (
                                         SELECT * 
