@@ -53,14 +53,23 @@ const executeTransaction = async (isolation, queries, vars, callback) => {
                 for (let i = 0; i < queries.length; i++) {
                     queryPromises.push(new Promise((resolve, reject) => {
                         connection.query(queries[i], vars[i], (err, results) => {
-                            if (err) reject(err);
-                            else resolve(results);
+                            if (err) {
+                                console.log("REJECTING " + i);
+                                console.log(vars[i]);
+                                reject(err);
+                            } else {
+                                console.log("RESOLVING " + i);
+                                console.log(vars[i]);
+                                resolve(queries[i], results);
+                            }
                         });
                     }));
                 }
                 await Promise.all(queryPromises)
-                    .then((results) => {
+                    .then((query, results) => {
                         connection.commit((err) => {
+                            console.log(query);
+                            console.log(results);
                             console.log('Committing');
                             if (err) {
                                 connection.rollback((err) => {

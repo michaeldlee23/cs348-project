@@ -65,7 +65,6 @@ module.exports = (app) => {
             res.cookie('token',token,{
                 httpOnly: true,
             });
-            req.session.user = { email: payload.email, token: token };
             return res.status(200).json({
                 message: SUC_MESSAGE,
                 jwt: token,
