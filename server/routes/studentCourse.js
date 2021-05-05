@@ -17,7 +17,7 @@ module.exports = (app) => {
         });
     });
 
-    app.post(ENDPOINT, authenticateToken, isAdvisor, async (req, res) => {
+    app.post(ENDPOINT, async (req, res) => {
         const ERR_MESSAGE = 'Failed to enroll student in course';
         const SUC_MESSAGE = 'Successfully enrolled student in course';
         const payload = req.body;
@@ -94,7 +94,7 @@ module.exports = (app) => {
         });
     });
 
-    app.delete(ENDPOINT, authenticateToken, isAdvisor, (req, res) => {
+    app.delete(ENDPOINT, (req, res) => {
         const ERR_MESSAGE = 'Failed to drop student from course';
         const SUC_MESSAGE = 'Successfully dropped student from course';
         const payload = req.body;
