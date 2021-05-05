@@ -1,8 +1,9 @@
 'use strict';
 
+const pool = require('../connection');
 const validation = require('../validation');
 const jsonConverter = require('../util/jsonConverter');
-const { executeQuery, executeTransaction } = require('../util/db');
+const { executeQuery } = require('../util/db');
 const { authenticateToken, verifyToken, isStudent, isAdmin } = require('../util/authenticate');
 
 const ENDPOINT = '/organizations';
@@ -114,7 +115,7 @@ module.exports = (app) => {
         });
     });
 
-    app.put(ENDPOINT + '/budget', verifyToken, isAdmin, (req, res) => {
+    app.put(ENDPOINT + '/budget', verifyToken, isAdmin, async (req, res) => {
         const ERR_MESSAGE = 'Failed to update organization budget';
         const SUC_MESSAGE = 'Successfully updated organization budget';
         const payload = req.body;
@@ -157,13 +158,70 @@ module.exports = (app) => {
         vars.push([payload.id, payload.amount, payload.id]);
 
         const isolation = "REPEATABLE READ";
-        executeTransaction(isolation, queries, vars, (err) => {
-            if (err) {
-                err.error = ERR_MESSAGE;
-                return res.status(500).json(err);
-            }
-            return res.status(200).json({ message: SUC_MESSAGE });
-        });
+        await pool.getConnection(async (err, connection) => {
+            if (err) return res.status(500).json(err);
+            await connection.query('SET TRANSACTION LEVEL ?', isolation);
+            await connection.beginTransaction(async (err) => {
+                if (err) {
+                    console.log(err.message);
+                    console.log('Rolling back...');
+                    connection.rollback((err) => {
+                        if (err) console.log('Rollback failed.');
+                        else console.log('Rollback successful.');
+                        connection.release(); 
+                    });
+                    return res.status(500).json(err);
+                }
+                connection.query(withdrawSQL, [payload.id, payload.amount, payload.id], (err) => {
+                    if (err) {
+                        console.log(err.message);
+                        console.log('Rolling back...');
+                        connection.rollback((err) => {
+                            if (err) console.log('Rollback failed.');
+                            else console.log('Rollback successful.');
+                            connection.release(); 
+                        });
+                        return res.status(500).json(err);
+                    }
+                    connection.query(depositSQL, [payload.id, payload.amount, payload.id], (err) => {
+                        if (err) {
+                            console.log(err.message);
+                            console.log('Rolling back...');
+                            connection.rollback((err) => {
+                                if (err) console.log('Rollback failed.');
+                                else console.log('Rollback successful.');
+                                connection.release(); 
+                            });                            return res.status(500).json(err);
+                        }
+                        connection.commit((err) => {
+                            console.log('Committing...');
+                            if (err) {
+                                console.log(err.message);
+                                console.log('Failed to commit changes');
+                                console.log('Rolling back...');
+                                connection.rollback((err) => {
+                                    console.log(err.message);
+                                    if (err) console.log('Rollback failed.');
+                                    else console.log('Rollback successful.');
+                                    connection.release(); 
+                                });
+                                return res.status(500).json(err);
+                            }
+                            console.log('Committed');
+                            return res.status(200).json({ message: SUC_MESSAGE });
+                        })
+                    })
+                })
+            })
+        })
+
+        // executeTransaction(isolation, queries, vars, (err) => {
+        //     if (err) {
+        //         err.error = ERR_MESSAGE;
+        //         return res.status(500).json(err);
+        //     }
+        //     return res.status(200).json({ message: SUC_MESSAGE });
+        // });
     })
 
     app.delete(ENDPOINT + '/:id', authenticateToken, isAdmin, async (req, res) => {

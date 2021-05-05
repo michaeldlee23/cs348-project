@@ -97,40 +97,42 @@
     });
     var success = "";
     (function($){
-        function makeChanges( e ){
-            alert(e.currentTarget.isDeposit);
+        const makeChanges = async ( e ) => {
             const el = document.getElementById("orgDetails"),
                 input = el.nodeName != 'INPUT' && el.nodeName != 'TEXTAREA',
                 data = {};
             if (input) {
                 const { orgs, changes } = grabTable(el, e.currentTarget.isDeposit);
-                success = "";
+                const promises = []
                 for (var i = 0; i < orgs.length; i++) {
                     if (changes[i]) {
-                        $.ajax({
-                            url: '/organizations/budget',
-                            dataType: 'json',
-                            type: 'put',
-                            contentType: 'application/json',
-                            data: JSON.stringify({ id: orgs[i], amount: changes[i] }), 
-                            success: function(data, textStatus, jQxhr) {
-                                if (success == "") {
-                                    success = "Updated organization budget";
-                                    alert(success);
-                                    window.location.href = window.location.href;
+                        promises.push(new Promise((resolve, reject) => {
+                            $.ajax({
+                                url: '/organizations/budget',
+                                dataType: 'json',
+                                type: 'put',
+                                contentType: 'application/json',
+                                data: JSON.stringify({ id: orgs[i], amount: changes[i] }), 
+                                success: function(data, textStatus, jQxhr) {
+                                    resolve();
+                                },
+                                error: function(jqXhr, textStatus, errorThrown){
+                                    console.log(errorThrown);
+                                    console.log(orgs[i], changes[i]);
+                                    reject();
                                 }
-                            },
-                            error: function(jqXhr, textStatus, errorThrown){
-                                alert("One or more modifications failed. Check the input and try again");
-                                console.log(errorThrown);
-
-                                console.log(orgs[i], changes[i]);
-
-                            }
-                        });
-                    }
+                            });
+                        }));
+                    } 
                 }
-                e.preventDefault();
+                await Promise.all(promises).then(() => {
+                        alert("All modifications succeeded.");
+                        window.location.href = window.location.href;
+                    })
+                    .catch(() => {
+                        alert("One or more modifications failed. Please review budgets.");
+                        window.location.href = window.location.href;
+                    });
             }
 
             e.preventDefault();
@@ -170,61 +172,5 @@
 </script>
 
 </body>
-
-<script>
-    document.addEventListener('keydown', function (event) {
-    var esc = event.which == 27,
-        nl = event.which == 13,
-        el = event.target,
-        input = el.nodeName != 'INPUT' && el.nodeName != 'TEXTAREA',
-        data = {};
-
-    if (input) {
-        if (esc) {
-        // restore state
-        
-        document.execCommand('undo');
-        el.blur();
-        } else if (nl) {
-        // save
-        
-        data[el.getAttribute('data-name')] = el.innerHTML;
-
-        console.log(tableToJson(el));
-
-        el.blur();
-        event.preventDefault();
-        }
-    }
-    }, true);
-
-    function tableToJson(table) {
-        var data = [];
-
-        // first row needs to be headers
-        var headers = [];
-        for (var i=0; i<table.rows[0].cells.length; i++) {
-            headers[i] = table.rows[0].cells[i].innerHTML.toLowerCase().replace(/ /gi,'');
-        }
-
-        // go through cells
-        for (var i=1; i<table.rows.length; i++) {
-
-            var tableRow = table.rows[i];
-            var rowData = {};
-
-            for (var j=0; j<tableRow.cells.length; j++) {
-
-                rowData[ headers[j] ] = tableRow.cells[j].innerHTML;
-
-            }
-
-            data.push(rowData);
-        }       
-
-        return data;
-    }
-</script>
-
 
 </html>
