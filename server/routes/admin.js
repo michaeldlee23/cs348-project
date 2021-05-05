@@ -18,12 +18,15 @@ module.exports = (app) => {
         });
     });
 
-    app.get(ENDPOINT + '/budgeting', (req, res) => {
+    app.get(ENDPOINT + '/budget', (req, res) => {
         const sql1 = `SELECT * FROM departments`;
-        const sql2 = `SELECT * FROM organizations`;
-        executeQuery(sql, (err, results) => {
+        const sql2 = `SELECT o.id, o.name, o.type, o.budget, d.name AS department, o.departmentID FROM organizations AS o JOIN departments AS d ON o.departmentID=d.id`;
+        executeQuery(sql2, (err, results) => {
             if (err) return res.status(500).json(err);
-            return res.render('admin/salaries.ejs', {userData: results});
+            executeQuery(sql1, (err, results2) => {
+                if (err) return res.status(500).json(err);
+                return res.render('admin/orgFunds.ejs', {orgs: results, deps: results2});
+            });
         });
     });
 
