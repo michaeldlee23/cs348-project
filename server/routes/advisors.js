@@ -92,23 +92,15 @@ module.exports = (app) => {
 
     app.get(ENDPOINT + '/:id/info', (req, res) => {
         const infoSQL = `SELECT * FROM ${ENTITY} WHERE id=?`;
-        const courseDataSQL = `SELECT co.courseID, co.code, co.name, co.department, COALESCE(num.numStudents, 0) AS numStudents 
-                            FROM (SELECT b.id AS courseID, b.code, b.name, d.name AS department 
-                                  FROM courses AS b JOIN departments AS d ON b.departmentID=d.id) AS co 
-                                LEFT JOIN (SELECT courseID, count(*) AS numStudents 
-                                    FROM (
-                                        SELECT * 
-                                        FROM studentCourseRel AS sc 
-                                        JOIN students AS s ON sc.studentID=s.id) AS m 
-                                    GROUP BY m.courseID) AS num 
-                                ON co.courseID=num.courseID`
+        const courseDataSQL = `CALL getCourseData(-1)`
     
         executeQuery(infoSQL, [req.params.id], (err, info) => {
             if (err)  return res.status(500).json(err); 
             if (!info[0]) return res.status(403).send("Forbidden");
             delete info[0].password;
             executeQuery(courseDataSQL, [req.params.id], (er, cData) => {
-                return res.render('advisors/advisorInfo.ejs',{id:req.params.id,info1:info, courses:cData});
+                console.log(cData);
+                return res.render('advisors/advisorInfo.ejs',{id:req.params.id,info1:info, courses:cData[0]});
             })
         });
     });

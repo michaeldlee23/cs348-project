@@ -117,7 +117,7 @@ module.exports = (app) => {
         });
     });
 
-    app.delete(ENDPOINT + '/:id', authenticateToken, isAdmin, async (req, res) => {
+    app.delete(ENDPOINT + '/:id', async (req, res) => {
         const SUC_MESSAGE = 'Successfully deleted department record';
         const ERR_MESSAGE = 'Failed to delete department record';
         const departmentID = req.params.id;

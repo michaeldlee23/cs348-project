@@ -51,8 +51,11 @@
     <%  i++; }) %>
     <% } else{ %>
         <tr>
-            <td colspan="7">No Data Found</td>
+            <th style="background-color: darkgray;">id</th>
+            <th style="background-color: darkgray;">name</th>
+            <th style="background-color: darkgray;">budget</th>
         </tr>
+
     <% } %>
 </table>
 
@@ -120,12 +123,16 @@
                             error: function(jqXhr, textStatus, errorThrown){
                                 alert("One or more modifications failed. Check the input and try again");
                                 console.log(errorThrown);
+
                                 console.log(orgs[i], changes[i]);
+
                             }
                         });
                     }
                 }
+                e.preventDefault();
             }
+
             e.preventDefault();
         }
 
@@ -161,6 +168,7 @@
         return data;
     }
 </script>
+
 </body>
 
 <script>
