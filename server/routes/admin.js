@@ -29,6 +29,17 @@ module.exports = (app) => {
         });
     });
 
+    app.get(ENDPOINT + '/departmentSummary', verifyToken, isAdmin, (req, res) => {
+        const sql = `SELECT d.id, d.name, d.budget, COALESCE(c.numCourses, 0) AS numCourses, COALESCE(t.numTeachers, 0) AS numTeachers, COALESCE(o.numOrgs, 0) AS numOrgs FROM departments as d 
+                    LEFT JOIN (SELECT departmentID, count(*) as numCourses FROM courses GROUP BY departmentID) AS c ON d.id=c.departmentID 
+                    LEFT JOIN (SELECT departmentID, count(*) AS numTeachers FROM teachers GROUP BY departmentID) AS t ON d.id=t.departmentID
+                    LEFT JOIN (SELECT departmentID, count(*) AS numOrgs FROM organizations GROUP BY departmentID) AS o ON d.id=o.departmentID`
+        executeQuery(sql, (err, results) => {
+            if (err) return res.status(500).json(err);
+            return res.render('admin/mergeDepartments.ejs', { deps: results });
+        });
+    });
+
     app.get(ENDPOINT + '/register', (req, res) => {
         return res.render('admin/registerAdmin.ejs');
     });
