@@ -26,11 +26,11 @@
 <h3>Manage Course Grades:</h3>
 <table id="table" border="1" style="margin-bottom:1cm" >
     <tr>
-        <th style="background-color: darkgray;">id</th>
-        <th style="background-color: darkgray;">last</th>
-        <th style="background-color: darkgray;">first</th>
-        <th style="background-color: darkgray;">middle</th>
-        <th style="background-color: darkgray;">grade</th>
+        <th style="background-color: darkgray;"><a id="idlink" href="">id</a></th>
+        <th style="background-color: darkgray;"><a id="lastlink" href="">last</a></th>
+        <th style="background-color: darkgray;"><a id="firstlink" href="">first</a></th>
+        <th style="background-color: darkgray;"><a id="middlelink" href="">middle</a></th>
+        <th style="background-color: darkgray;"><a id="gradelink" href="">grade</a></th>
         <th>INPUT NEW GRADE</th>
     </tr>
     
@@ -65,6 +65,30 @@
             $(this).find("button").attr("id", i);
             $(this).find("button").attr("id", i++);
         });
+        if (window.location.href.includes("sortby=id&order=asc")) {
+            document.getElementById("idlink").setAttribute("href", "?sortby=id&order=desc");
+        }
+        else {
+            document.getElementById("idlink").setAttribute("href", "?sortby=id&order=asc");
+        }
+        if (window.location.href.includes("sortby=last&order=asc")) {
+            document.getElementById("lastlink").setAttribute("href", "?sortby=last&order=desc");
+        }
+        else {
+            document.getElementById("lastlink").setAttribute("href", "?sortby=last&order=asc");
+        }
+        if (window.location.href.includes("sortby=first&order=asc")) {
+            document.getElementById("firstlink").setAttribute("href", "?sortby=first&order=desc");
+        }
+        else {
+            document.getElementById("firstlink").setAttribute("href", "?sortby=first&order=asc");
+        }
+        if (window.location.href.includes("sortby=grade&order=asc")) {
+            document.getElementById("gradelink").setAttribute("href", "?sortby=grade&order=desc");
+        }
+        else {
+            document.getElementById("gradelink").setAttribute("href", "?sortby=grade&order=asc");
+        }
     });
     var success = "";
     (function($){
