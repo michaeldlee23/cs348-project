@@ -44,7 +44,7 @@ module.exports = (app) => {
         const p = req.params.course.split("?")
         const courseID = p[0];
         const parameter = p.length > 1 ? p[1] : null;
-        const params = {}
+        const params = req.query;
         const ERR_MESSAGE = 'Failed to retrieve course details';
         const err = validation.request.courses.getCourseSchema.validate(params).error;
         if (err) {
@@ -67,6 +67,7 @@ module.exports = (app) => {
                      WHERE C.id = ? ${searchLast} ${searchFirst}
                      ORDER BY ${params.sortby} ${params.order}
                      LIMIT ${params.limit}`;
+        console.log(sql);
         executeQuery(sql, [courseID], (err, results) => {
             if (err) return res.status(500).json(err);
             console.log(results);
